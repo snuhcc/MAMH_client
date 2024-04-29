@@ -42,9 +42,14 @@ def initiation():
 
 if __name__ == '__main__':
     initiation()
-    game_name = "PublicGoods"
-    curClient = select_client(game_name)
-    dc = curClient()
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("--game_name", type=str, default="")
+    args = argparser.parse_args()
+    if args.game_name in client_list.keys():
+        curClient = select_client(args.game_name)
+    else:
+        raise NotImplementedError
+    dc = curClient(placeholder)
     if st.session_state.page == 0:
         dc.main_page(HOST, PORT)
     elif st.session_state.page == 1:
@@ -59,3 +64,5 @@ if __name__ == '__main__':
         dc.night_msg_page()
     elif st.session_state.page == 6:
         dc.day_msg_page()
+    elif st.session_state.page == -1:
+        dc.empty_page()
