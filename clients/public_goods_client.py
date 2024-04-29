@@ -45,6 +45,7 @@ class PublicGoodsClient(DefaultClient):
             st.write("Welcome to new Game!")
 
             st.write("Type your information and connect to your server!")
+            HOST = st.text_input('IP address', '')
             name = st.text_input('Nickname', 'Tester')
             persona = st.text_area('Persona', '')
             user_info = {
