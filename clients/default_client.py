@@ -28,9 +28,7 @@ def button1(HOST, PORT, name, user_info):
     print(data)
     if data == 'accepted':
         st.session_state.name = name
-        st.session_state.rerun = True
-        st.session_state.tpage = st.session_state.page + 1
-        st.session_state.page = -1
+        st.session_state.page += 1
     else:
         st.warning('player name duplicated.')
 
@@ -136,8 +134,3 @@ class DefaultClient:
         st.write("Not implemented.")
         # print result / save result / query....
     
-    def empty_page(self):
-        st.write("")
-        st.session_state.page = st.session_state.tpage
-        st.rerun()
-
