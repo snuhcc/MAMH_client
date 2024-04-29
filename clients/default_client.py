@@ -54,6 +54,7 @@ class DefaultClient:
             st.write("Welcome to new Game!")
 
             st.write("Type your information and connect to your server!")
+            HOST = st.text_input('IP address', '')
             name = st.text_input('Nickname', 'Tester')
             st.button("Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'name': name}, disabled=st.session_state.page!=0)
 
