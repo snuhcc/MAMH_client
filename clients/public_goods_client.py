@@ -136,7 +136,7 @@ class PublicGoodsClient(DefaultClient):
         cur_ed = 0
         for i, ed in enumerate(ed_list):
             if st.session_state.name in ed:
-                ed_str = f"{ed}: {ed_list[i+1].split(' ')[0]}"
+                ed_str = f"{ed.split(' ')[-1]}: {ed_list[i+1].split(' ')[0]}"
                 cur_ed = int(ed_list[i+1].split(" ")[0])
 
         with self.placeholder.container():
