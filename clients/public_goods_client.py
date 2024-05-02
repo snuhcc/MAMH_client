@@ -106,6 +106,7 @@ class PublicGoodsClient(DefaultClient):
                 user_info.write(t)
             if st.session_state.turn > 1:
                 with st.sidebar:
+                    st.title(f"{st.session_state.name} message box")
                     tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
                     for i in range(1, st.session_state.turn+1):
                         tab_list[i-1].write(st.session_state.client_log[i])
@@ -191,6 +192,7 @@ class PublicGoodsClient(DefaultClient):
                     break
         if st.session_state.turn > 1:
             with st.sidebar:
+                st.title(f"{st.session_state.name} message box")
                 tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
                 for i in range(1, st.session_state.turn+1):
                     tab_list[i-1].write(st.session_state.client_log[i])
@@ -235,6 +237,7 @@ class PublicGoodsClient(DefaultClient):
                     break
         if st.session_state.turn > 1:
             with st.sidebar:
+                st.title(f"{st.session_state.name} message box")
                 tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
                 for i in range(1, st.session_state.turn+1):
                     tab_list[i-1].write(st.session_state.client_log[i])
