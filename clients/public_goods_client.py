@@ -132,6 +132,8 @@ class PublicGoodsClient(DefaultClient):
         data_list = st.session_state.player_data.split('\n\n')
         
         ed_list = data_list[2].split(": ")
+        ed_str = ""
+        cur_ed = 0
         for i, ed in enumerate(ed_list):
             if st.session_state.name in ed:
                 ed_str = f"{ed}: {ed_list[i+1].split(' ')[0]}"
