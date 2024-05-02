@@ -106,7 +106,6 @@ class PublicGoodsClient(DefaultClient):
                 user_info.write(t)
             if st.session_state.turn > 1:
                 with st.sidebar:
-                    st.title(f"{st.session_state.name} message box")
                     tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
                     for i in range(1, st.session_state.turn+1):
                         tab_list[i-1].write(st.session_state.client_log[i])
@@ -124,28 +123,34 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.session_control = True
                     st.session_state.player_data = data
                     st.session_state.client_log[st.session_state.turn] += "Endowment \n\n"
-                    st.session_state.client_log[st.session_state.turn] += data_list[3]
+                    st.session_state.client_log[st.session_state.turn] += data_list[2]
                     st.session_state.client_log[st.session_state.turn] += "\n\nContribution\n\n"
-                    st.session_state.client_log[st.session_state.turn] += data_list[4]
+                    st.session_state.client_log[st.session_state.turn] += data_list[3]
                     break
                 else:
                     print('error?')
         data_list = st.session_state.player_data.split('\n\n')
         
+        ed_list = data_list[2].split(": ")
+        for i, ed in enumerate(ed_list):
+            if st.session_state.name in ed:
+                ed_str = f"{ed}: {ed_list[i+1].split(' ')[0]}"
+                cur_ed = int(ed_list[i+1].split(" ")[0])
+
         with self.placeholder.container():
             ec = st.container(border=True)
             ec.write(f"**Turn {st.session_state.turn} ended.**")
-            ec.write(data_list[2])
-            ec.write("Your After Endowment")
             ec.write(data_list[1])
+            ec.write("Your After Endowment")
+            ec.write(ed_str)
             ec.write("Overall Endowment")
-            ec.write(data_list[3])
+            ec.write(data_list[2])
             ec.write("Opponents' contributions")
-            ec.write(data_list[4])
+            ec.write(data_list[3])
             onclick = self.button3
-            if data_list[5] != 'none':
+            if data_list[4] != 'none':
                 ec.write(data_list[5])
-                if int(data_list[1].split(':')[1]) < 0:
+                if cur_ed < 0:
                     ec.write("You eliminated.")
                     onclick = endpage
 
@@ -184,7 +189,6 @@ class PublicGoodsClient(DefaultClient):
                     break
         if st.session_state.turn > 1:
             with st.sidebar:
-                st.title(f"{st.session_state.name} message box")
                 tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
                 for i in range(1, st.session_state.turn+1):
                     tab_list[i-1].write(st.session_state.client_log[i])
@@ -229,7 +233,6 @@ class PublicGoodsClient(DefaultClient):
                     break
         if st.session_state.turn > 1:
             with st.sidebar:
-                st.title(f"{st.session_state.name} message box")
                 tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
                 for i in range(1, st.session_state.turn+1):
                     tab_list[i-1].write(st.session_state.client_log[i])
