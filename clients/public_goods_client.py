@@ -46,12 +46,13 @@ class PublicGoodsClient(DefaultClient):
 
             st.write("Type your information and connect to your server!")
             HOST = st.text_input('IP address', '')
-            name = st.text_input('Nickname', 'Tester')
-            persona = st.text_area('Persona', '')
+            username = st.text_input('Your name for checking attendence', '')
+            st.write("You will get new nickname when game started.")
+            # persona = st.text_area('Persona', '')
             user_info = {
-                "persona": persona
+                "username": username
             }
-            st.button("Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'name': name, 'user_info': user_info}, disabled=st.session_state.page!=0)
+            st.button("Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
 
     def turn_page(self):
         self.placeholder.write("Please wait until server start turn.")
@@ -87,6 +88,10 @@ class PublicGoodsClient(DefaultClient):
         # start turn
         with self.placeholder.container():
             st.write(f"**Turn {st.session_state.turn} started.**")
+
+            ninfo = st.container(border=True)
+            ninfo.write(f"You are {st.session_state.name}.")
+
             user_info = st.container(border=True)
             user_info.write(f"Your status")
             data_list = st.session_state.player_data

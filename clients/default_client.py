@@ -13,7 +13,7 @@ def turnpage():
     st.session_state.page = 1
 
 ### button functions
-def button1(HOST, PORT, name, user_info):
+def button1(HOST, PORT, user_info):
     try: 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.connect((HOST,PORT))
@@ -21,12 +21,13 @@ def button1(HOST, PORT, name, user_info):
         st.warning('connection refused. try again.')
         return
     sending_data = "\n\n".join([str(user_info[k]) for k in user_info.keys()])
-    sending_data = f"ready\n\n{name}\n\n" + sending_data
+    sending_data = "ready\n\n" + sending_data
     server_socket.send(sending_data.encode())
     st.session_state.server_socket = server_socket
     data = server_socket.recv(1024).decode('utf-8')
     print(data)
-    if data == 'accepted':
+    if data.split('\n\n')[0] == 'accepted':
+        name = data.split('\n\n')[-1]
         st.session_state.name = name
         st.session_state.page += 1
     else:
@@ -54,7 +55,6 @@ class DefaultClient:
             st.write("Welcome to new Game!")
 
             st.write("Type your information and connect to your server!")
-            HOST = st.text_input('IP address', '')
             name = st.text_input('Nickname', 'Tester')
             st.button("Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'name': name}, disabled=st.session_state.page!=0)
 
