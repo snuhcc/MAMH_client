@@ -210,7 +210,7 @@ class PublicGoodsClient(DefaultClient):
             
             player_msgs = {}
             for pname in st.session_state.pname_list:
-                if pname == st.session_state.name:
+                if pname == st.session_state.name or pname == "":
                     continue
                 player_msgs[pname] = nmsgc.text_area(f'Message to {pname}')
             
