@@ -38,6 +38,8 @@ def initiation():
         st.session_state.rdatas = []
     if "player_data" not in st.session_state:
         st.session_state.player_data = []
+    if "pname_list" not in st.session_state:
+        st.session_state.pname_list = []
 
 
 if __name__ == '__main__':
@@ -45,6 +47,7 @@ if __name__ == '__main__':
     game_name = "PublicGoods"
     curClient = select_client(game_name)
     dc = curClient(placeholder)
+
     if st.session_state.page == 0:
         dc.main_page(HOST, PORT)
     elif st.session_state.page == 1:
