@@ -62,6 +62,7 @@ class PublicGoodsClient(DefaultClient):
             data_list = []
             while 'start' not in data_list:
                 data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                print(data)
                 data_list = data.split('\n\n')
             print(data)
             st.session_state.session_control = True
