@@ -193,7 +193,9 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.server_socket.send('get_player_name'.encode())
             while 'player_name' not in data:
                 data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            st.session_state.pname_list = data.split('player_name')[-1].split(' ')
+            pname_list = data.split('player_name')[-1].split(' ')
+            pname_list = [item for item in pname_list if item != 'start']
+            st.session_state.pname_list = pname_list
         if st.session_state.turn > 1:
             with st.sidebar:
                 st.title(f"{st.session_state.name} message box")
