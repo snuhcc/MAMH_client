@@ -16,7 +16,8 @@ def sending_mail(player_msgs, time):
 
     st.session_state.server_socket.send(f'{time}\n\n{sending}'.encode())
     st.session_state.client_log[st.session_state.turn] += f"{time} Send \n\n"
-    st.session_state.client_log[st.session_state.turn] += sending
+    st.session_state.client_log[st.session_state.turn] += sending.replace('@', ': ')
+    st.session_state.client_log[st.session_state.turn] += "\n\n --- \n\n"
     st.session_state.session_control = False
     if time == 'night':
         st.session_state.page += 1
@@ -42,36 +43,33 @@ class PublicGoodsClient(DefaultClient):
     ### page implementations
     def main_page(self, HOST, PORT):
         with self.placeholder.container():
-            st.write("Welcome to new Game!")
+            st.markdown("### 🎮 Welcome to the New Game!")
 
             st.write("Type your information and connect to your server!")
-            HOST = st.text_input('IP address', '')
-            username = st.text_input('Your name for checking attendence', '')
-            st.write("You will get new nickname when game started.")
+            HOST = st.text_input('🌐 IP Address', '')
+            username = st.text_input('📛 Your Name', '')
+            st.write("You will receive a new nickname when the game starts.")
             # persona = st.text_area('Persona', '')
             user_info = {
                 "username": username
             }
-            st.button("Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
+            st.button("🔗 Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
 
     def turn_page(self):
-        self.placeholder.write("Please wait until server start turn.")
+        self.placeholder.write("⌛ Please wait until the server starts the turn.")
             
         if not st.session_state.session_control:
             data = ""
             data_list = []
             while 'start' not in data_list:
                 data = st.session_state.server_socket.recv(1024).decode('utf-8')
-                print(data)
                 data_list = data.split('\n\n')
-            print(data)
             st.session_state.session_control = True
             st.session_state.button_disabled = False
             st.session_state.server_socket.send('get_player'.encode())
             while st.session_state.name not in data:
                 data = st.session_state.server_socket.recv(1024).decode('utf-8')
             data = st.session_state.name + st.session_state.name.join(data.split(st.session_state.name)[1:])
-            print(data)
             st.session_state.player_data = data.split('\n\n')
             if st.session_state.turn > 1:
                 if len(st.session_state.player_data) > 5:
@@ -81,41 +79,52 @@ class PublicGoodsClient(DefaultClient):
                             dindex = i
                             break
                     
-                    st.session_state.client_log[st.session_state.turn] += "day Received \n\n"
+                    st.session_state.client_log[st.session_state.turn] += "\n\nday Received \n\n"
                     if dindex != -1:
+                        print(st.session_state.player_data[dindex])
                         st.session_state.client_log[st.session_state.turn] += '\n\n'.join(st.session_state.player_data[dindex:])
-
         # start turn
         with self.placeholder.container():
-            st.write(f"**Turn {st.session_state.turn} started.**")
-
-            ninfo = st.container(border=True)
-            ninfo.write(f"You are {st.session_state.name}.")
-
-            user_info = st.container(border=True)
-            user_info.write(f"Your status")
             data_list = st.session_state.player_data
-            user_info.write(f"")
-            user_info.write(f"NAME: {data_list[0]}")
-            user_info.write(f"ENDOWMENT:{data_list[1]}")
-            user_info.write(f"FARE:{data_list[2]}")
-            user_info.write(f"ENDOWMENT TARGET:{data_list[3]}")
-            user_info.write("")
-            user_info.write(f"Other players info:")
-            for t in data_list[4].split('   '):
-                user_info.write(t)
+            st.markdown(f"### Turn {st.session_state.turn} / 8 started.")
+            st.markdown(f"👤 **You are {st.session_state.name}.**")
+            on = st.toggle(f"Round Rule")
+            if on:
+                st.markdown(f"  -   You need to pay {data_list[2]} fare.")
+                st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
+                st.markdown(f"  -   If project success, you will receive an amount distributed according to the number of people, twice the total.")
+                st.markdown(f"  -   If project fail, you get nothing.")
+                st.markdown("   -   Contribute smart to survive 8 rounds!")
+
+            st.markdown(f"#### **Your status**")
+            col1, col2 = st.columns(2)
+            col1.image(f'person_images/{st.session_state.name}.png')
+            col2.write(f"**Name**       : {data_list[0]}")
+            col2.write(f"**Endowment**  : {data_list[1]}")
+
+            cols = st.columns(6) # TODO: make dynamic
+            other_players_info = data_list[4].split('   ')[:-1]
+            for i, col in enumerate(cols):
+                c_name = other_players_info[i].split(':')[0][1:]
+                c_endowment = other_players_info[i].split('- ')[-1].split(' ')[0]
+                col.image(f'person_images/{c_name}.png')
+                col.write(f"**Name**       : {c_name}")
+                col.write(f"**Endowment**  : {c_endowment}")
+            
             if st.session_state.turn > 1:
                 with st.sidebar:
-                    st.title(f"{st.session_state.name} message box")
-                    tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
+                    st.title(f"📥 {st.session_state.name}'s Message Box")
+                    tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn+1))])
                     for i in range(1, st.session_state.turn+1):
-                        tab_list[i-1].write(st.session_state.client_log[i])
-            bc = st.container(border=True)
-            cur_bid = bc.number_input('Current turn\'s contribution', min_value=0, max_value=int(data_list[1]))
-            st.button("Bet!", key='button2', on_click=self.button2, kwargs={'cur_bid': cur_bid}, disabled=st.session_state.page != 1)
+                        with tab_list[i-1]:
+                            st.write(st.session_state.client_log[st.session_state.turn+1 -i])
+
+            st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
+            cur_bid = st.number_input("💰 Contribution", min_value=0, max_value=int(data_list[1]))
+            st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={'cur_bid': cur_bid}, disabled=st.session_state.page != 1)
     
     def turn_waiting_page(self):
-        self.placeholder.write("Waiting other players finish bet...")
+        self.placeholder.write("⌛ Waiting for other players to finish betting...")
         
         if not st.session_state.session_control:
             data = ""
@@ -125,42 +134,41 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.server_socket.send('received'.encode())
             st.session_state.session_control = True
             st.session_state.player_data = data
-            st.session_state.client_log[st.session_state.turn] += "Endowment \n\n"
-            st.session_state.client_log[st.session_state.turn] += data_list[2]
-            st.session_state.client_log[st.session_state.turn] += "\n\nContribution\n\n"
-            st.session_state.client_log[st.session_state.turn] += data_list[3]
+            endo_str = '  '.join(data_list[2].split('\n'))
+            cont_str = '  '.join(data_list[3].split('\n'))
+            st.session_state.client_log[st.session_state.turn] = f"**Endowment**\n\n{endo_str}\n\n**Contribution**\n\n{cont_str}\n\n --- \n\n"+ st.session_state.client_log[st.session_state.turn]
         data_list = st.session_state.player_data.split('\n\n')
         
-        ed_list = data_list[2].split(": ")
+        ed_list = data_list[2].split("\n")
         ed_str = ""
         cur_ed = 0
         for i, ed in enumerate(ed_list):
             if st.session_state.name in ed:
-                ed_str = f"{ed.split(' ')[-2]}: {ed_list[i+1].split(' ')[0]}"
-                cur_ed = int(ed_list[i+1].split(" ")[0])
+                ed_str = ed
+                cur_ed = int(ed.split(":")[1].strip())
 
         with self.placeholder.container():
-            ec = st.container(border=True)
-            ec.write(f"**Turn {st.session_state.turn} ended.**")
-            ec.write(data_list[1])
-            ec.write("Your After Endowment")
-            ec.write(ed_str)
-            ec.write("Overall Endowment")
-            ec.write(data_list[2])
-            ec.write("Opponents' contributions")
-            ec.write(data_list[3])
+            st.markdown(f"### Turn {st.session_state.turn} Ended")
+            st.write(f"🏦 {data_list[1]}")
+            st.markdown("#### **Your After Endowment**")
+            st.write(ed_str)
+            st.markdown("#### **Overall Endowment**")
+            st.write('\n\n'.join(data_list[2].split('\n')))
+            st.markdown("#### **Opponents' Contributions**")
+            st.write('\n\n'.join(data_list[3].split('\n')))
             onclick = self.button3
             if data_list[4] != 'none':
-                ec.write(data_list[5])
+                st.write('\n\n'.join(data_list[4].split('\n')))
+
                 if cur_ed < 0:
-                    ec.write("You eliminated.")
+                    st.write("❌ You have been eliminated.")
                     onclick = endpage
 
-            st.button("End turn", key='button3', on_click=onclick)
+            st.button("➡️ End Turn", key='button3', on_click=onclick)
 
 
     def turn_end_page(self):
-        self.placeholder.write("Waiting other players finish checking result...")
+        self.placeholder.write("⌛ Waiting for other players to finish checking results...")
         
         if not st.session_state.session_control:
             data = ""
@@ -177,11 +185,11 @@ class PublicGoodsClient(DefaultClient):
                 st.session_state.session_control = True
                 onclick = self.button4(msgpage)
         with self.placeholder.container():
-            st.write("Goto next turn night...")
-            st.button("Next", key='button4', on_click=onclick)
+            st.write("🌒 Goto Next Turn Night...")
+            st.button("➡️ Next", key='button4', on_click=onclick)
 
     def night_msg_page(self):
-        self.placeholder.write("Waiting server start night...")
+        self.placeholder.write("🌒 Waiting for the server to start night...")
         
         
         if not st.session_state.session_control:
@@ -198,27 +206,27 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.pname_list = pname_list
         if st.session_state.turn > 1:
             with st.sidebar:
-                st.title(f"{st.session_state.name} message box")
-                tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
-                for i in range(1, st.session_state.turn+1):
-                    tab_list[i-1].write(st.session_state.client_log[i])
+                st.title(f"📥 {st.session_state.name}'s Message Box")
+                tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn))])
+                for i in range(1, st.session_state.turn):
+                    with tab_list[i-1]:
+                        st.markdown(st.session_state.client_log[st.session_state.turn - i])
         
         with self.placeholder.container():
-            nmsgc = st.container(border=True)
-            nmsgc.write("**Night Secret Mailbox**")
-            nmsgc.write("Write secret messages to players..!")
+            st.markdown("### 🌒 **Night Secret Mailbox**")
+            st.write("Write secret messages to other players!")
             
             player_msgs = {}
             for pname in st.session_state.pname_list:
                 if pname == st.session_state.name or pname == "":
                     continue
-                player_msgs[pname] = nmsgc.text_area(f'Message to {pname}')
+                player_msgs[pname] = st.text_area(f"📧 Message to {pname}")
             
-            st.button('Send', key='nightsend', on_click=sending_mail, kwargs={'time':'night', 'player_msgs': player_msgs})
+            st.button('📤 Send', key='nightsend', on_click=sending_mail, kwargs={'time':'night', 'player_msgs': player_msgs})
         
     
     def day_msg_page(self):
-        self.placeholder.write("Waiting server start day...")
+        self.placeholder.write("🌞 Waiting for the server to start day...")
         
 
         
@@ -231,8 +239,9 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.session_control = True
             st.session_state.rnames = []
             st.session_state.rdatas = data_list
-            st.session_state.client_log[st.session_state.turn] += "night Received \n\n"
+            st.session_state.client_log[st.session_state.turn] += "Night Received \n\n"
             st.session_state.client_log[st.session_state.turn] += '\n\n'.join(data_list)
+            st.session_state.client_log[st.session_state.turn] += '--- \n\n'
             for d in st.session_state.rdatas:
                 if d == "":
                     continue
@@ -242,38 +251,40 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.rnames.append(d.split(':')[0])
         if st.session_state.turn > 1:
             with st.sidebar:
-                st.title(f"{st.session_state.name} message box")
-                tab_list = st.tabs([f"Turn {i}" for i in range(1, st.session_state.turn+1)])
+                st.title(f"📥 {st.session_state.name}'s Message Box")
+                tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn+1))])
                 for i in range(1, st.session_state.turn+1):
-                    tab_list[i-1].write(st.session_state.client_log[i])
+                    with tab_list[i-1]:
+                        st.write(st.session_state.client_log[st.session_state.turn+1 - i])
+
         with self.placeholder.container():
-            nrmsgc = st.container(border=True)
-            if len(st.session_state.rdatas) > 0:
-                nrmsgc.write("You received messages:")
+            st.markdown("### **Day Secret Mailbox**")
+
+            if st.session_state.rdatas[0] != "":
+                st.write("📩 You received messages:")
                 for d in st.session_state.rdatas:
-                    print(d)
                     if d == "":
                         continue
                     if d.split(':')[0] == 'Messages':
-                        nrmsgc.write(f"{d.split(':')[1]}: {d.split(':')[2]}")
+                        st.write(f"📧 {d.split(':')[1]}: {d.split(':')[2]}")
                     else:
-                        nrmsgc.write(f"{d.split(':')[0]}: {d.split(':')[1]}")
-                dmsgc = st.container(border=True)
-                dmsgc.write("**Day Secret Mailbox**")
-                dmsgc.write("Write reply!")
+                        st.write(f"📧 {d.split(':')[0]}: {d.split(':')[1]}")
+                dmsgc = st.container()
+                dmsgc.write("**Write your reply!**")
                 player_msgs = {}
                 for rname in st.session_state.rnames:
                     if rname != "":
-                        player_msgs[rname] = dmsgc.text_area(f'Reply to {rname}', key=f'tadms{rname}')
-                smsg = 'Send'
+                        player_msgs[rname] = dmsgc.text_area(f"📧 Reply to {rname}", key=f'tadms{rname}')
+                smsg = "📤 Send"
             else:
-                nrmsgc.write("You received no messages.")
+                st.write("❌ You received no messages.")
                 player_msgs = {}
-                smsg = 'Next'
-            
+                smsg = "➡️ Next"
+
             st.button(smsg, key='daysend', on_click=sending_mail, kwargs={'time': 'day', 'player_msgs': player_msgs})
 
     def game_end_page(self):
-        st.write("The game ends.")
+        st.write("🎯 The game ends.")
+        st.write("Thank you for participate!")
 
-        st.button("Restart game", key='button6', on_click=initpage)
+        st.button("Goto Interview page", key='button6', on_click=initpage)
