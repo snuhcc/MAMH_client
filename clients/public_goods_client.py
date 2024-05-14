@@ -88,7 +88,7 @@ class PublicGoodsClient(DefaultClient):
             data_list = st.session_state.player_data
             st.markdown(f"### Turn {st.session_state.turn} / 8 started.")
             st.markdown(f"👤 **You are {st.session_state.name}.**")
-            on = st.toggle(f"Round Rule")
+            on = st.toggle(f"Click to see Round Rule.")
             if on:
                 st.markdown(f"  -   You need to pay {data_list[2]} fare.")
                 st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
@@ -107,9 +107,9 @@ class PublicGoodsClient(DefaultClient):
             for i, col in enumerate(cols):
                 c_name = other_players_info[i].split(':')[0][1:]
                 c_endowment = other_players_info[i].split('- ')[-1].split(' ')[0]
+                col.write(f"{c_name}")
                 col.image(f'person_images/{c_name}.png')
-                col.write(f"**Name**       : {c_name}")
-                col.write(f"**Endowment**  : {c_endowment}")
+                col.write(f"**Endowment :** {c_endowment}")
             
             if st.session_state.turn > 1:
                 with st.sidebar:
@@ -148,14 +148,28 @@ class PublicGoodsClient(DefaultClient):
                 cur_ed = int(ed.split(":")[1].strip())
 
         with self.placeholder.container():
+            col1, col2, col3 = st.columns([1,2,1])
+            col2.write(f"#### 🏦 {data_list[1]}")
             st.markdown(f"### Turn {st.session_state.turn} Ended")
-            st.write(f"🏦 {data_list[1]}")
             st.markdown("#### **Your After Endowment**")
-            st.write(ed_str)
+            col1, col2 = st.columns(2)
+            col1.image(f'person_images/{st.session_state.name}.png', width=250)
+            col2.write(f"**Name**       : {ed_str.split(':')[0].strip()}")
+            col2.write(f"**Endowment**  : {ed_str.split(':')[1].strip()}")
             st.markdown("#### **Overall Endowment**")
-            st.write('\n\n'.join(data_list[2].split('\n')))
-            st.markdown("#### **Opponents' Contributions**")
-            st.write('\n\n'.join(data_list[3].split('\n')))
+            cols = st.columns(6) # TODO: make dynamic
+            other_players_info = data_list[2].split('\n')
+            other_players_cont = data_list[3].split('\n')
+            for i, col in enumerate(cols):
+                c_name = other_players_info[i].split(':')[0].strip()
+                c_endowment = "\n" + other_players_info[i].split(':')[1].strip()
+                c_contribution = "\n" + other_players_cont[i].split(':')[1].strip()
+                col.write(f"{c_name}")
+                col.image(f'person_images/{c_name}.png')
+                col.markdown(f"**Contribution**  {c_contribution}")
+                col.markdown(f"**Endowment**   {c_endowment}")
+                
+                
             onclick = self.button3
             if data_list[4] != 'none':
                 st.write('\n\n'.join(data_list[4].split('\n')))
