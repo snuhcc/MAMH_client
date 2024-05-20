@@ -52,7 +52,7 @@ class PublicGoodsClient(DefaultClient):
             st.markdown("### 🎮 Welcome to the New Game!")
 
             st.write("Type your information and connect to your server!")
-            HOST = st.text_input('🌐 IP Address', value='127.0.0.1')
+            HOST = st.text_input('🌐 IP Address', value='13.125.250.236')
             PORT = st.text_input('🌐 PORT', value=20912)
             username = st.text_input('📛 Your Name', '')
             st.write("You will receive a new nickname when the game starts.")
