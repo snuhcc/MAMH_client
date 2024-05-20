@@ -357,7 +357,7 @@ class PublicGoodsClient(DefaultClient):
 
 
         with self.placeholder.container():
-            st.markdown("### **Day Secret Mailbox**")
+            st.markdown("### 🌞 **Day Secret Mailbox**")
 
             if st.session_state.rdatas[0] != "":
                 st.write("📩 You received messages:")
