@@ -125,7 +125,8 @@ class PublicGoodsClient(DefaultClient):
             if st.session_state.turn > 1:
                 with st.sidebar:
                     st.title(f"📥 {st.session_state.name}'s Message Box")
-                    names = st.session_state.status_logdict.keys().remove(st.session_state.name)
+                    names = st.session_state.status_logdict.keys()
+                    names.remove(st.session_state.name)
                     selected = st.radio('Select one to see chats.', names, horizontal=True)
                     if selected in names:
                         st.write(f"endowment: {st.session_state.status_logdict[selected]}")
@@ -261,7 +262,8 @@ class PublicGoodsClient(DefaultClient):
         with self.placeholder.container():
             with st.sidebar:
                 st.title(f"📥 {st.session_state.name}'s Message Box")
-                names = st.session_state.status_logdict.keys().remove(st.session_state.name)
+                names = st.session_state.status_logdict.keys()
+                names.remove(st.session_state.name)
                 selected = st.radio('Select one to see chats.', names, horizontal=True)
                 if selected in names:
                     st.write(f"endowment: {st.session_state.status_logdict[selected]}")
@@ -330,7 +332,8 @@ class PublicGoodsClient(DefaultClient):
                             st.session_state.rnames.append(d.split(':')[0])
                 with st.sidebar:
                     st.title(f"📥 {st.session_state.name}'s Message Box")
-                    names = st.session_state.status_logdict.keys().remove(st.session_state.name)
+                    names = st.session_state.status_logdict.keys()
+                    names.remove(st.session_state.name)
                     selected = st.radio('Select one to see chats.', names, horizontal=True)
                     if selected in names:
                         st.write(f"endowment: {st.session_state.status_logdict[selected]}")
