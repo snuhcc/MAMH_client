@@ -186,12 +186,12 @@ class PublicGoodsClient(DefaultClient):
             col2.write(f"**Name**       : {ed_str.split(':')[0].strip()}")
             col2.write(f"**Endowment**  : {ed_str.split(':')[1].strip()}")
             st.markdown("#### **Overall Endowment**")
-            cols = st.columns(6) # TODO: make dynamic
             other_players_info = data_list[2].split('\n')
             other_players_cont = data_list[3].split('\n')
-            for i, col in enumerate(cols):
-                c_name = other_players_info[i].split(':')[0].strip()
-                c_endowment = other_players_info[i].split(':')[1].strip()
+            cols = st.columns(len(other_players_info))
+            for i, pinfo in enumerate(other_players_info):
+                c_name = pinfo[i].split(':')[0].strip()
+                c_endowment = pinfo[i].split(':')[1].strip()
                 c_contribution = other_players_cont[i].split(':')[1].strip()
                 str_endowment = "\n" + c_endowment
                 str_contribution = "\n" + c_contribution
@@ -203,12 +203,14 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.endowment_table[c_name] = [1200, int(c_endowment)] # TODO: dynamic init endo
                 else:
                     st.session_state.endowment_table[c_name].append(int(c_endowment))
-                col.write(f"{c_name}")
-                col.image(f'person_images/{c_name}.png')
-                col.markdown(f"**Contribution**  {str_contribution}")
-                col.markdown(f"**Endowment**   {str_endowment}")
-                
-                
+                cols[i].write(f"{c_name}")
+                cols[i].image(f'person_images/{c_name}.png')
+                cols[i].markdown(f"**Contribution**  {str_contribution}")
+                cols[i].markdown(f"**Endowment**   {str_endowment}")
+            for k in st.session_state.endowment_table.keys():
+                if st.session_state.endowment_table[k][-1] <= 0:
+                    st.session_state.contribution.table.pop(c_name, None)
+                    st.session_state.endowment_table.pop(c_name, None)
             onclick = self.button3
             if data_list[4] != 'none':
                 st.write('\n\n'.join(data_list[4].split('\n')))
