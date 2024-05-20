@@ -190,8 +190,8 @@ class PublicGoodsClient(DefaultClient):
             other_players_cont = data_list[3].split('\n')
             cols = st.columns(len(other_players_info))
             for i, pinfo in enumerate(other_players_info):
-                c_name = pinfo[i].split(':')[0].strip()
-                c_endowment = pinfo[i].split(':')[1].strip()
+                c_name = pinfo.split(':')[0].strip()
+                c_endowment = pinfo.split(':')[1].strip()
                 c_contribution = other_players_cont[i].split(':')[1].strip()
                 str_endowment = "\n" + c_endowment
                 str_contribution = "\n" + c_contribution
