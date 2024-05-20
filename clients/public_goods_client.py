@@ -279,11 +279,11 @@ class PublicGoodsClient(DefaultClient):
             st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
         
             contribution_df = pd.DataFrame(st.session_state.contribution_table)
-            contribution_df['turn'] = list(range(0, st.session_state.turn))
             contribution_df.columns = [name[0] for name in contribution_df.columns]
+            contribution_df['turn'] = list(range(0, st.session_state.turn))
             endowment_df = pd.DataFrame(st.session_state.endowment_table)
-            endowment_df['turn'] = list(range(0, st.session_state.turn))
             endowment_df.columns = [name[0] for name in endowment_df.columns]
+            endowment_df['turn'] = list(range(0, st.session_state.turn))
                 
             col1, col2 = st.columns(2)
             col1.write("Contributions")
