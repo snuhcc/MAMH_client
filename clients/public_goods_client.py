@@ -333,6 +333,7 @@ class PublicGoodsClient(DefaultClient):
                 with st.sidebar:
                     st.title(f"📥 {st.session_state.name}'s Message Box")
                     names = list(st.session_state.status_logdict.keys())
+                    print(names, st.session_state.name)
                     names.remove(st.session_state.name)
                     selected = st.radio('Select one to see chats.', names, horizontal=True)
                     if selected in names:
