@@ -23,7 +23,7 @@ def sending_mail(player_msgs, time):
     for sends in sending.replace('@', ': ').split('\n\n'):
         if ':' in sends:
             name, msg = sends.split(':')
-            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send){msg}\n\n"
+            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)({time} {st.session_state.turn}) {msg}\n\n"
     st.session_state.client_log[st.session_state.turn] += "\n\n --- \n\n"
     st.session_state.session_control = False
     if time == 'night':
@@ -91,7 +91,7 @@ class PublicGoodsClient(DefaultClient):
                         for reply in all_replys.split('\n\n'):
                             if ':' in reply:
                                 name, msg = reply.split(':')
-                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received){msg}\n\n"
+                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)(day {st.session_state.turn}) {msg}\n\n"
         # start turn
         with self.placeholder.container():
             data_list = st.session_state.player_data
@@ -322,7 +322,7 @@ class PublicGoodsClient(DefaultClient):
                     for data_log in data_list:
                         if ':' in data_log:
                             name, msg = data_log.split(':')
-                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received){msg}\n\n"
+                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)(night {st.session_state.turn}){msg}\n\n"
                     for d in st.session_state.rdatas:
                         if d == "":
                             continue
@@ -330,23 +330,23 @@ class PublicGoodsClient(DefaultClient):
                             st.session_state.rnames.append(d.split(':')[1])
                         else:
                             st.session_state.rnames.append(d.split(':')[0])
-                with st.sidebar:
-                    st.title(f"📥 {st.session_state.name}'s Message Box")
-                    names = list(st.session_state.status_logdict.keys())
-                    print(names, st.session_state.name)
-                    names.remove(st.session_state.name)
-                    selected = st.radio('Select one to see chats.', names, horizontal=True)
-                    if selected in names:
-                        st.write(f"endowment: {st.session_state.status_logdict[selected]}")
-                        for msgs in st.session_state.message_logdict[selected.strip()].split('\n\n'):
-                            if "(received)" in msgs:
-                                name, msg = msgs.split("(received)")
-                                with st.chat_message(name='assistant', avatar=f'person_images/{selected.strip()}.png'):
-                                    st.write(msg)
-                            elif "(send)" in msgs:
-                                name, msg = msgs.split("(send)")
-                                with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
-                                    st.write(msg)
+            with st.sidebar:
+                st.title(f"📥 {st.session_state.name}'s Message Box")
+                names = list(st.session_state.status_logdict.keys())
+                print(names, st.session_state.name)
+                names.remove(st.session_state.name)
+                selected = st.radio('Select one to see chats.', names, horizontal=True)
+                if selected in names:
+                    st.write(f"endowment: {st.session_state.status_logdict[selected]}")
+                    for msgs in st.session_state.message_logdict[selected.strip()].split('\n\n'):
+                        if "(received)" in msgs:
+                            name, msg = msgs.split("(received)")
+                            with st.chat_message(name='assistant', avatar=f'person_images/{selected.strip()}.png'):
+                                st.write(msg)
+                        elif "(send)" in msgs:
+                            name, msg = msgs.split("(send)")
+                            with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
+                                st.write(msg)
 
 
         with self.placeholder.container():
