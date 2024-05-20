@@ -308,6 +308,7 @@ class PublicGoodsClient(DefaultClient):
                     data = ""
                     while 'reply' not in data:
                         data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    st.write(data)
                     data_list = data.split('replys')[1].split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
