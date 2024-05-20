@@ -282,7 +282,6 @@ class PublicGoodsClient(DefaultClient):
             contribution_df['turn'] = list(range(0, st.session_state.turn))
             endowment_df = pd.DataFrame(st.session_state.endowment_table)
             endowment_df['turn'] = list(range(0, st.session_state.turn))
-            st.write(contribution_df)
             col1, col2 = st.columns(2)
             col1.write("Contributions")
             col1.line_chart(contribution_df.set_index('turn'))
