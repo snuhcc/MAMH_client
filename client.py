@@ -40,6 +40,10 @@ def initiation():
         st.session_state.player_data = []
     if "pname_list" not in st.session_state:
         st.session_state.pname_list = []
+    if "contribution_table" not in st.session_state:
+        st.session_state.contribution_table = {}
+    if "endowment_table" not in st.session_state:
+        st.session_state.endowment_table = {}
 
 
 if __name__ == '__main__':

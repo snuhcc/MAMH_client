@@ -1,5 +1,6 @@
 from .default_client import *
 import streamlit as st
+import pandas as pd
 
 def initpage():
     st.session_state.page = 0
@@ -56,33 +57,29 @@ class PublicGoodsClient(DefaultClient):
             st.button("🔗 Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
 
     def turn_page(self):
-        self.placeholder.write("⌛ Please wait until the server starts the turn.")
-            
-        if not st.session_state.session_control:
-            data = ""
-            data_list = []
-            while 'start' not in data_list:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-                data_list = data.split('\n\n')
-            st.session_state.session_control = True
-            st.session_state.button_disabled = False
-            st.session_state.server_socket.send('get_player'.encode())
-            while st.session_state.name not in data:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            data = st.session_state.name + st.session_state.name.join(data.split(st.session_state.name)[1:])
-            st.session_state.player_data = data.split('\n\n')
-            if st.session_state.turn > 1:
-                if len(st.session_state.player_data) > 5:
-                    dindex = -1
-                    for i, d in enumerate(st.session_state.player_data):
-                        if "Replys" in d:
-                            dindex = i
-                            break
-                    
-                    st.session_state.client_log[st.session_state.turn] += "\n\nday Received \n\n"
-                    if dindex != -1:
-                        print(st.session_state.player_data[dindex])
-                        st.session_state.client_log[st.session_state.turn] += '\n\n'.join(st.session_state.player_data[dindex:])
+        with self.placeholder:
+            with st.spinner("⌛ Please wait until the server starts the turn."):
+                if not st.session_state.session_control:
+                    data = ""
+                    data_list = []
+                    while 'start' not in data_list:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        data_list = data.split('\n\n')
+                    st.session_state.session_control = True
+                    st.session_state.button_disabled = False
+                    st.session_state.server_socket.send('get_player'.encode())
+                    while st.session_state.name not in data:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    data = st.session_state.name + st.session_state.name.join(data.split(st.session_state.name)[1:])
+                    st.session_state.player_data = data.split('\n\n')
+
+                    if st.session_state.turn > 1:
+                        reply_data = st.session_state.server_socket.send('get_msg'.encode())
+                        while 'msg' not in reply_data:
+                            reply_data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        st.session_state.client_log[st.session_state.turn] += "\n\nday Received \n\n"
+                        print(reply_data)
+                        st.session_state.client_log[st.session_state.turn] += 'Replys'.join(reply_data.split('Replys:')[1:])
         # start turn
         with self.placeholder.container():
             data_list = st.session_state.player_data
@@ -94,6 +91,7 @@ class PublicGoodsClient(DefaultClient):
                 st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
                 st.markdown(f"  -   If project success, you will receive an amount distributed according to the number of people, twice the total.")
                 st.markdown(f"  -   If project fail, you get nothing.")
+                st.markdown(f"  -   For example, if all people bid at least {int(data_list[2]) // 2}, you can deserve all {data_list[2]} fare.")
                 st.markdown("   -   Contribute smart to survive 8 rounds!")
 
             st.markdown(f"#### **Your status**")
@@ -102,8 +100,9 @@ class PublicGoodsClient(DefaultClient):
             col2.write(f"**Name**       : {data_list[0]}")
             col2.write(f"**Endowment**  : {data_list[1]}")
 
-            cols = st.columns(6) # TODO: make dynamic
+            
             other_players_info = data_list[4].split('   ')[:-1]
+            cols = st.columns(len(other_players_info)) # TODO: make dynamic
             for i, col in enumerate(cols):
                 c_name = other_players_info[i].split(':')[0][1:]
                 c_endowment = other_players_info[i].split('- ')[-1].split(' ')[0]
@@ -124,28 +123,28 @@ class PublicGoodsClient(DefaultClient):
             st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={'cur_bid': cur_bid}, disabled=st.session_state.page != 1)
     
     def turn_waiting_page(self):
-        self.placeholder.write("⌛ Waiting for other players to finish betting...")
-        
-        if not st.session_state.session_control:
-            data = ""
-            while 'end_turn' not in data:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            data_list = data.split('\n\n')
-            st.session_state.server_socket.send('received'.encode())
-            st.session_state.session_control = True
-            st.session_state.player_data = data
-            endo_str = '  '.join(data_list[2].split('\n'))
-            cont_str = '  '.join(data_list[3].split('\n'))
-            st.session_state.client_log[st.session_state.turn] = f"**Endowment**\n\n{endo_str}\n\n**Contribution**\n\n{cont_str}\n\n --- \n\n"+ st.session_state.client_log[st.session_state.turn]
-        data_list = st.session_state.player_data.split('\n\n')
-        
-        ed_list = data_list[2].split("\n")
-        ed_str = ""
-        cur_ed = 0
-        for i, ed in enumerate(ed_list):
-            if st.session_state.name in ed:
-                ed_str = ed
-                cur_ed = int(ed.split(":")[1].strip())
+        with self.placeholder:
+            with st.spinner("⌛ Waiting for other players to finish betting..."):
+                if not st.session_state.session_control:
+                    data = ""
+                    while 'end_turn' not in data:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    data_list = data.split('\n\n')
+                    st.session_state.server_socket.send('received'.encode())
+                    st.session_state.session_control = True
+                    st.session_state.player_data = data
+                    endo_str = '  '.join(data_list[2].split('\n'))
+                    cont_str = '  '.join(data_list[3].split('\n'))
+                    st.session_state.client_log[st.session_state.turn] = f"**Endowment**\n\n{endo_str}\n\n**Contribution**\n\n{cont_str}\n\n --- \n\n"+ st.session_state.client_log[st.session_state.turn]
+                data_list = st.session_state.player_data.split('\n\n')
+                
+                ed_list = data_list[2].split("\n")
+                ed_str = ""
+                cur_ed = 0
+                for i, ed in enumerate(ed_list):
+                    if st.session_state.name in ed:
+                        ed_str = ed
+                        cur_ed = int(ed.split(":")[1].strip())
 
         with self.placeholder.container():
             col1, col2, col3 = st.columns([1,2,1])
@@ -162,12 +161,23 @@ class PublicGoodsClient(DefaultClient):
             other_players_cont = data_list[3].split('\n')
             for i, col in enumerate(cols):
                 c_name = other_players_info[i].split(':')[0].strip()
-                c_endowment = "\n" + other_players_info[i].split(':')[1].strip()
-                c_contribution = "\n" + other_players_cont[i].split(':')[1].strip()
+                c_endowment = other_players_info[i].split(':')[1].strip()
+                c_contribution = other_players_cont[i].split(':')[1].strip()
+                str_endowment = "\n" + c_endowment
+                str_contribution = "\n" + c_contribution
+                
+                if c_name not in st.session_state.contribution_table.keys():
+                    st.session_state.contribution_table[c_name] = [int(c_contribution)]
+                else:\
+                    st.session_state.contribution_table[c_name].append(int(c_contribution))
+                if c_name not in st.session_state.endowment_table.keys():
+                    st.session_state.endowment_table[c_name] = [int(c_endowment)]
+                else:
+                    st.session_state.endowment_table[c_name].append(int(c_endowment))
                 col.write(f"{c_name}")
                 col.image(f'person_images/{c_name}.png')
-                col.markdown(f"**Contribution**  {c_contribution}")
-                col.markdown(f"**Endowment**   {c_endowment}")
+                col.markdown(f"**Contribution**  {str_contribution}")
+                col.markdown(f"**Endowment**   {str_endowment}")
                 
                 
             onclick = self.button3
@@ -182,54 +192,62 @@ class PublicGoodsClient(DefaultClient):
 
 
     def turn_end_page(self):
-        self.placeholder.write("⌛ Waiting for other players to finish checking results...")
-        
-        if not st.session_state.session_control:
-            data = ""
-            while 'end_game' not in data and 'start_turn' not in data:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            data_list = data.split('\n\n')
-            if data_list[0] == 'end_game':
-                st.session_state.server_socket.send('received'.encode())
-                st.session_state.session_control = True
-                onclick = self.button4(nextpage)
-            elif data_list[0] == 'start_turn':
-                st.session_state.server_socket.send('received'.encode())
-                st.session_state.turn += 1
-                st.session_state.session_control = True
-                onclick = self.button4(msgpage)
+        with self.placeholder:
+            with st.spinner("⌛ Waiting for other players to finish checking results..."):
+                if not st.session_state.session_control:
+                    data = ""
+                    while 'end_game' not in data and 'start_turn' not in data:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    data_list = data.split('\n\n')
+                    if data_list[0] == 'end_game':
+                        st.session_state.server_socket.send('received'.encode())
+                        st.session_state.session_control = True
+                        onclick = self.button4(nextpage)
+                    elif data_list[0] == 'start_turn':
+                        st.session_state.server_socket.send('received'.encode())
+                        st.session_state.turn += 1
+                        st.session_state.session_control = True
+                        onclick = self.button4(msgpage)
         with self.placeholder.container():
             st.write("🌒 Goto Next Turn Night...")
             st.button("➡️ Next", key='button4', on_click=onclick)
 
     def night_msg_page(self):
-        self.placeholder.write("🌒 Waiting for the server to start night...")
-        
-        
-        if not st.session_state.session_control:
-            data = ""
-            while 'start' not in data:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            st.session_state.server_socket.send('received'.encode())
-            st.session_state.session_control = True
-            st.session_state.server_socket.send('get_player_name'.encode())
-            while 'player_name' not in data:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            pname_list = data.split('player_name')[-1].split(' ')
-            pname_list = [item for item in pname_list if item != 'start']
-            st.session_state.pname_list = pname_list
-        if st.session_state.turn > 1:
-            with st.sidebar:
-                st.title(f"📥 {st.session_state.name}'s Message Box")
-                tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn))])
-                for i in range(1, st.session_state.turn):
-                    with tab_list[i-1]:
-                        st.markdown(st.session_state.client_log[st.session_state.turn - i])
+        with self.placeholder:
+            with st.spinner("🌒 Waiting for the server to start night..."):
+                if not st.session_state.session_control:
+                    data = ""
+                    while 'start' not in data:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    st.session_state.server_socket.send('received'.encode())
+                    st.session_state.session_control = True
+                    st.session_state.server_socket.send('get_player_name'.encode())
+                    while 'player_name' not in data:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    pname_list = data.split('player_name')[-1].split(' ')
+                    pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
+                    st.session_state.pname_list = pname_list
+                if st.session_state.turn > 1:
+                    with st.sidebar:
+                        st.title(f"📥 {st.session_state.name}'s Message Box")
+                        tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn))])
+                        for i in range(1, st.session_state.turn):
+                            with tab_list[i-1]:
+                                st.markdown(st.session_state.client_log[st.session_state.turn - i])
         
         with self.placeholder.container():
             st.markdown("### 🌒 **Night Secret Mailbox**")
             st.write("Write secret messages to other players!")
-            
+            st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+            st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+        
+            contribution_df = pd.DataFrame.from_dict(st.session_state.contribution_table)
+            contribution_df['turn'] = list(range(1, st.session_state.turn))
+            endowment_df = pd.DataFrame.from_dict(st.session_state.endowment_table)
+            endowment_df['turn'] = list(range(1, st.session_state.turn))
+            print(st.session_state.contribution_table, contribution_df)
+            st.line_chart(contribution_df.set_index('turn'))
+            st.line_chart(endowment_df.set_index('turn'))
             player_msgs = {}
             for pname in st.session_state.pname_list:
                 if pname == st.session_state.name or pname == "":
@@ -240,36 +258,34 @@ class PublicGoodsClient(DefaultClient):
         
     
     def day_msg_page(self):
-        self.placeholder.write("🌞 Waiting for the server to start day...")
-        
-
-        
-        if not st.session_state.session_control:
-            data = ""
-            while 'reply' not in data:
-                data = st.session_state.server_socket.recv(1024).decode('utf-8')
-            data_list = data.split('replys')[1].split('\n\n')
-            st.session_state.server_socket.send('received'.encode())
-            st.session_state.session_control = True
-            st.session_state.rnames = []
-            st.session_state.rdatas = data_list
-            st.session_state.client_log[st.session_state.turn] += "Night Received \n\n"
-            st.session_state.client_log[st.session_state.turn] += '\n\n'.join(data_list)
-            st.session_state.client_log[st.session_state.turn] += '--- \n\n'
-            for d in st.session_state.rdatas:
-                if d == "":
-                    continue
-                if d.split(':')[0] == 'Messages':
-                    st.session_state.rnames.append(d.split(':')[1])
-                else:
-                    st.session_state.rnames.append(d.split(':')[0])
-        if st.session_state.turn > 1:
-            with st.sidebar:
-                st.title(f"📥 {st.session_state.name}'s Message Box")
-                tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn+1))])
-                for i in range(1, st.session_state.turn+1):
-                    with tab_list[i-1]:
-                        st.write(st.session_state.client_log[st.session_state.turn+1 - i])
+        with self.placeholder:
+            with st.spinner("🌞 Waiting for the server to start day..."):
+                if not st.session_state.session_control:
+                    data = ""
+                    while 'reply' not in data:
+                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    data_list = data.split('replys')[1].split('\n\n')
+                    st.session_state.server_socket.send('received'.encode())
+                    st.session_state.session_control = True
+                    st.session_state.rnames = []
+                    st.session_state.rdatas = data_list
+                    st.session_state.client_log[st.session_state.turn] += "Night Received \n\n"
+                    st.session_state.client_log[st.session_state.turn] += '\n\n'.join(data_list)
+                    st.session_state.client_log[st.session_state.turn] += '--- \n\n'
+                    for d in st.session_state.rdatas:
+                        if d == "":
+                            continue
+                        if d.split(':')[0] == 'Messages':
+                            st.session_state.rnames.append(d.split(':')[1])
+                        else:
+                            st.session_state.rnames.append(d.split(':')[0])
+                if st.session_state.turn > 1:
+                    with st.sidebar:
+                        st.title(f"📥 {st.session_state.name}'s Message Box")
+                        tab_list = st.tabs([f"Turn {i}" for i in reversed(range(1, st.session_state.turn+1))])
+                        for i in range(1, st.session_state.turn+1):
+                            with tab_list[i-1]:
+                                st.write(st.session_state.client_log[st.session_state.turn+1 - i])
 
         with self.placeholder.container():
             st.markdown("### **Day Secret Mailbox**")
@@ -300,5 +316,6 @@ class PublicGoodsClient(DefaultClient):
     def game_end_page(self):
         st.write("🎯 The game ends.")
         st.write("Thank you for participate!")
+        
 
         st.button("Goto Interview page", key='button6', on_click=initpage)

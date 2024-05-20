@@ -14,6 +14,7 @@ def turnpage():
 
 ### button functions
 def button1(HOST, PORT, user_info):
+    PORT = int(PORT)
     try: 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.connect((HOST,PORT))
