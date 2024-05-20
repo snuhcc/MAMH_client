@@ -208,7 +208,7 @@ class PublicGoodsClient(DefaultClient):
                 cols[i].image(f'person_images/{c_name}.png')
                 cols[i].markdown(f"**Contribution**  {str_contribution}")
                 cols[i].markdown(f"**Endowment**   {str_endowment}")
-            tmp_keys = st.session_state.endowment_table.keys()
+            tmp_keys = st.session_state.endowment_table.keys().copy()
             for k in tmp_keys:
                 if st.session_state.endowment_table[k][-1] <= 0:
                     st.session_state.contribution_table.pop(c_name, None)
