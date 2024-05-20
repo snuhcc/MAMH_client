@@ -255,6 +255,10 @@ class PublicGoodsClient(DefaultClient):
                     pname_list = data.split('player_name')[-1].split(' ')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
                     st.session_state.pname_list = pname_list
+            
+
+        
+        with self.placeholder.container():
             with st.sidebar:
                 st.title(f"📥 {st.session_state.name}'s Message Box")
                 names = st.session_state.status_logdict.keys()
@@ -270,9 +274,6 @@ class PublicGoodsClient(DefaultClient):
                             name, msg = msgs.split("(send)")
                             with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
                                 st.write(msg)
-
-        
-        with self.placeholder.container():
             st.markdown("### 🌒 **Night Secret Mailbox**")
             st.write("Write secret messages to other players!")
             st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
@@ -308,7 +309,6 @@ class PublicGoodsClient(DefaultClient):
                     data = ""
                     while 'reply' not in data:
                         data = st.session_state.server_socket.recv(1024).decode('utf-8')
-                    st.write(data)
                     data_list = data.split('replys')[1].split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
@@ -320,7 +320,7 @@ class PublicGoodsClient(DefaultClient):
                     for data_log in data_list:
                         if ':' in data_log:
                             name, msg = data_log.split(':')
-                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(receieved){msg}\n\n"
+                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received){msg}\n\n"
                     for d in st.session_state.rdatas:
                         if d == "":
                             continue
