@@ -124,6 +124,7 @@ class PublicGoodsClient(DefaultClient):
             
             if st.session_state.turn > 1:
                 with st.sidebar:
+                    st.image(f'person_images/{st.session_state.name}.png', width=100)
                     st.title(f"📥 {st.session_state.name}'s Message Box")
                     names = list(st.session_state.status_logdict.keys())
                     names.remove(st.session_state.name)
@@ -263,6 +264,7 @@ class PublicGoodsClient(DefaultClient):
         
         with self.placeholder.container():
             with st.sidebar:
+                st.image(f'person_images/{st.session_state.name}.png', width=100)
                 st.title(f"📥 {st.session_state.name}'s Message Box")
                 names = list(st.session_state.status_logdict.keys())
                 names.remove(st.session_state.name)
@@ -285,7 +287,6 @@ class PublicGoodsClient(DefaultClient):
         
             contribution_df = pd.DataFrame(st.session_state.contribution_table)
             contribution_df.columns = [name[0] for name in contribution_df.columns]
-            print(contribution_df)
             contribution_df['turn'] = list(range(0, st.session_state.turn))
             endowment_df = pd.DataFrame(st.session_state.endowment_table)
             endowment_df.columns = [name[0] for name in endowment_df.columns]
@@ -334,6 +335,7 @@ class PublicGoodsClient(DefaultClient):
                         else:
                             st.session_state.rnames.append(d.split(':')[0])
             with st.sidebar:
+                st.image(f'person_images/{st.session_state.name}.png', width=100)
                 st.title(f"📥 {st.session_state.name}'s Message Box")
                 names = list(st.session_state.status_logdict.keys())
                 print(names, st.session_state.name)
