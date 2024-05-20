@@ -290,7 +290,7 @@ class PublicGoodsClient(DefaultClient):
             player_msgs = {}
             st.write(st.session_state.pname_list)
             for pname in st.session_state.pname_list:
-                if pname == st.session_state.name or pname == "":
+                if pname == st.session_state.name or pname.strip() == "":
                     continue
                 player_msgs[pname] = st.text_area(f"📧 Message to {pname}")
             
