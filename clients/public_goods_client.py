@@ -1,6 +1,7 @@
 from .default_client import *
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def initpage():
     st.session_state.page = 0
@@ -281,12 +282,16 @@ class PublicGoodsClient(DefaultClient):
             contribution_df['turn'] = list(range(0, st.session_state.turn))
             endowment_df = pd.DataFrame(st.session_state.endowment_table)
             endowment_df['turn'] = list(range(0, st.session_state.turn))
-            print(endowment_df)
+            st.write(contribution_df)
             col1, col2 = st.columns(2)
             col1.write("Contributions")
             col1.line_chart(contribution_df.set_index('turn'))
             col2.write("Endowments")
             col2.line_chart(endowment_df.set_index('turn'))
+
+            fig, axs = plt.subplots(1, 2)
+            axs[0].plot(contribution_df['turn'], )
+
             player_msgs = {}
             st.write(st.session_state.pname_list)
             for pname in st.session_state.pname_list:
