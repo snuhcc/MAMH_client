@@ -210,7 +210,7 @@ class PublicGoodsClient(DefaultClient):
                 cols[i].markdown(f"**Endowment**   {str_endowment}")
             for k in st.session_state.endowment_table.keys():
                 if st.session_state.endowment_table[k][-1] <= 0:
-                    st.session_state.contribution.table.pop(c_name, None)
+                    st.session_state.contribution_table.pop(c_name, None)
                     st.session_state.endowment_table.pop(c_name, None)
             onclick = self.button3
             if data_list[4] != 'none':
