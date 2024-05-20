@@ -164,7 +164,7 @@ class PublicGoodsClient(DefaultClient):
                     for i in range(len(endo_splits)):
                         if ':' in endo_splits[i]:
                             name, endo = endo_splits[i].split(':') 
-                            st.session_state.status_logdict[name] = endo
+                            st.session_state.status_logdict[name.strip()] = endo
 
                 data_list = st.session_state.player_data.split('\n\n')
                 
