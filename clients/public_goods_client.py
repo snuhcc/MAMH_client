@@ -291,11 +291,8 @@ class PublicGoodsClient(DefaultClient):
             col2.write("Endowments")
             col2.line_chart(endowment_df.set_index('turn'))
 
-            fig, axs = plt.subplots(1, 2)
-            axs[0].plot(contribution_df['turn'], )
 
             player_msgs = {}
-            st.write(st.session_state.pname_list)
             for pname in st.session_state.pname_list:
                 if pname == st.session_state.name or pname.strip() == "":
                     continue
