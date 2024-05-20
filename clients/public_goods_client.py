@@ -255,21 +255,21 @@ class PublicGoodsClient(DefaultClient):
                     pname_list = data.split('player_name')[-1].split(' ')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
                     st.session_state.pname_list = pname_list
-                with st.sidebar:
-                    st.title(f"📥 {st.session_state.name}'s Message Box")
-                    names = st.session_state.status_logdict.keys()
-                    selected = st.radio('Select one to see chats.', names, horizontal=True)
-                    if selected in names:
-                        st.write(f"endowment: {st.session_state.status_logdict[selected]}")
-                        for msgs in st.session_state.message_logdict[selected.strip().strip()].split('\n\n'):
-                            if "(received)" in msgs:
-                                name, msg = msgs.split("(received)")
-                                with st.chat_message(name='assistant', avatar=f'person_images/{selected.strip()}.png'):
-                                    st.write(msg)
-                            elif "(send)" in msgs:
-                                name, msg = msgs.split("(send)")
-                                with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
-                                    st.write(msg)
+            with st.sidebar:
+                st.title(f"📥 {st.session_state.name}'s Message Box")
+                names = st.session_state.status_logdict.keys()
+                selected = st.radio('Select one to see chats.', names, horizontal=True)
+                if selected in names:
+                    st.write(f"endowment: {st.session_state.status_logdict[selected]}")
+                    for msgs in st.session_state.message_logdict[selected.strip().strip()].split('\n\n'):
+                        if "(received)" in msgs:
+                            name, msg = msgs.split("(received)")
+                            with st.chat_message(name='assistant', avatar=f'person_images/{selected.strip()}.png'):
+                                st.write(msg)
+                        elif "(send)" in msgs:
+                            name, msg = msgs.split("(send)")
+                            with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
+                                st.write(msg)
 
         
         with self.placeholder.container():
