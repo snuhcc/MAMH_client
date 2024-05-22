@@ -16,8 +16,7 @@ def sending_mail(player_msgs, time):
         if msg != "":
             sending += f"{pname}@{msg}\n\n" 
 
-    st.session_state.server_socket.send(f'{time}\n\n{sending}'.encode())
-
+    st.session_state.server_socket.send(f'{time}\n\n{sending}END'.encode())
     st.session_state.client_log[st.session_state.turn] += f"{time} Send \n\n"
     st.session_state.client_log[st.session_state.turn] += sending.replace('@', ': ')
     for sends in sending.replace('@', ': ').split('\n\n'):
@@ -76,7 +75,12 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.button_disabled = False
                     st.session_state.server_socket.send('get_player'.encode())
                     while st.session_state.name not in data:
-                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        buf = st.session_state.server_socket.recv(1024)
+                        data = buf.decode('utf-8')
+                    if len(buf) == 1024:
+                        while buf[-3:] != b'END':
+                            buf += st.session_state.server_socket.recv(1024)
+                        data = buf[:-3].decode('utf-8')
                     data = st.session_state.name + st.session_state.name.join(data.split(st.session_state.name)[1:])
                     st.session_state.player_data = data.split('\n\n')
 
@@ -189,6 +193,7 @@ class PublicGoodsClient(DefaultClient):
             st.markdown("#### **Overall Endowment**")
             other_players_info = data_list[2].split('\n')
             other_players_cont = data_list[3].split('\n')
+
             cols = st.columns(len(other_players_info))
             for i, pinfo in enumerate(other_players_info):
                 c_name = pinfo.split(':')[0].strip()
@@ -316,7 +321,13 @@ class PublicGoodsClient(DefaultClient):
                 if not st.session_state.session_control:
                     data = ""
                     while 'reply' not in data:
-                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        buf = st.session_state.server_socket.recv(1024)
+                        data = buf.decode('utf-8')
+                    if len(buf) == 1024:
+                        while buf[-3:] != b'END':
+                            buf += self.client.recv(1024)
+                        data = buf[:-3].decode('utf-8')
+                    
                     data_list = data.split('replys')[1].split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
@@ -340,7 +351,6 @@ class PublicGoodsClient(DefaultClient):
                 st.image(f'person_images/{st.session_state.name}.png', width=100)
                 st.title(f"📥 {st.session_state.name}'s Message Box")
                 names = list(st.session_state.status_logdict.keys())
-                print(names, st.session_state.name)
                 names.remove(st.session_state.name)
                 selected = st.radio('Select one to see chats.', names, horizontal=True)
                 if selected in names:

@@ -44,6 +44,10 @@ def initiation():
         st.session_state.contribution_table = {}
     if "endowment_table" not in st.session_state:
         st.session_state.endowment_table = {}
+    if "msg_history" not in st.session_state:
+        st.session_state.msg_history = ""
+    if "client_chats" not in st.session_state:
+        st.session_state.client_chats = []
     if "message_logdict" not in st.session_state:
         st.session_state.message_logdict = defaultdict(str)
     if "status_logdict" not in st.session_state:
