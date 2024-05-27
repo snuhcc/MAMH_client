@@ -52,7 +52,10 @@ def initiation():
         st.session_state.message_logdict = defaultdict(str)
     if "status_logdict" not in st.session_state:
         st.session_state.status_logdict = {}
-
+    if "checkboxs" not in st.session_state:
+        st.session_state.checkboxs = []
+    if "public_messages" not in st.session_state:
+        st.session_state.public_messages = []
 
 if __name__ == '__main__':
     initiation()
