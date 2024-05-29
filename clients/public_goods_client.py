@@ -69,7 +69,7 @@ class PublicGoodsClient(DefaultClient):
             st.markdown("### 🎮 Welcome to the New Game!")
 
             st.write("Type your information and connect to your server!")
-            HOST = st.text_input('🌐 IP Address', value='13.125.250.236')
+            HOST = st.text_input('🌐 IP Address', value='127.0.0.1')
             PORT = st.text_input('🌐 PORT', value=20912)
             username = st.text_input('📛 Your Name', '')
             st.write("You will receive a new nickname when the game starts.")
@@ -497,5 +497,6 @@ class PublicGoodsClient(DefaultClient):
     def game_end_page(self):
         st.write("🎯 The game ends.")
         st.write("Thank you for participate!")
-        st.write("진행자의 지시에 따라주세요.")
         
+
+        st.button("Goto Interview page", key='button6', on_click=initpage)
