@@ -4,7 +4,7 @@ from collections import defaultdict
 from clients import client_list, select_client
 
 
-
+st.set_page_config(layout='wide')
 # HOST / PORT setting
 # socket info - for remote server
 # HOST = '0.0.0.0'
