@@ -201,7 +201,12 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.server_socket.send('get_player'.encode())
                     while st.session_state.name not in data:
                         buf = st.session_state.server_socket.recv(1024)
-                        data = buf.decode('utf-8')
+                        try:
+                            data = buf.decode('utf-8')
+                        except:
+                            while buf[-3:] != b'END':
+                                buf += st.session_state.server_socket.recv(1024)
+                            data = buf[:-3].decode('utf-8')
                     if len(buf) == 1024:
                         while buf[-3:] != b'END':
                             buf += st.session_state.server_socket.recv(1024)
@@ -476,7 +481,12 @@ class PublicGoodsClient(DefaultClient):
                     data = ""
                     while 'STP' not in data:
                         buf = st.session_state.server_socket.recv(1024)
-                        data = buf.decode('utf-8')
+                        try:
+                            data = buf.decode('utf-8')
+                        except:
+                            while buf[-3:] != b'END':
+                                buf += st.session_state.server_socket.recv(1024)
+                            data = buf[:-3].decode('utf-8')
                     if len(buf) == 1024:
                         while buf[-3:] != b'END':
                             buf += st.session_state.server_socket.recv(1024)
@@ -486,8 +496,15 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.server_socket.send('get_player_name'.encode())
+
                     while 'player_name' not in data:
-                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        buf = st.session_state.server_socket.recv(1024)
+                        try:
+                            data = buf.decode('utf-8')
+                        except:
+                            while buf[-3:] != b'END':
+                                buf += st.session_state.server_socket.recv(1024)
+                            data = buf[:-3].decode('utf-8')
                     pname_list = data.split('player_name')[-1].split('\n')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
                     st.session_state.pname_list = pname_list
@@ -531,15 +548,20 @@ class PublicGoodsClient(DefaultClient):
             with st.spinner("🌞 Waiting for the server to start day..."):
                 if not st.session_state.session_control:
                     data = ""
-                    while 'reply' not in data:
+                    while 'RPYS' not in data:
                         buf = st.session_state.server_socket.recv(1024)
-                        data = buf.decode('utf-8')
+                        try:
+                            data = buf.decode('utf-8')
+                        except:
+                            while buf[-3:] != b'END':
+                                buf += st.session_state.server_socket.recv(1024)
+                            data = buf[:-3].decode('utf-8')
                     if len(buf) == 1024:
                         while buf[-3:] != b'END':
                             buf += self.client.recv(1024)
                         data = buf[:-3].decode('utf-8')
                     
-                    data_list = 'replys'.join(data.split('replys')[1:]).split('\n\n')
+                    data_list = data.split('RPYS')[1:].split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.rnames = []
