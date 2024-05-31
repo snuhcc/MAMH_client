@@ -561,7 +561,7 @@ class PublicGoodsClient(DefaultClient):
                             buf += self.client.recv(1024)
                         data = buf[:-3].decode('utf-8')
                     
-                    data_list = data.split('RPYS')[1:].split('\n\n')
+                    data_list = data.split('RPYS').split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.rnames = []
