@@ -497,7 +497,7 @@ class PublicGoodsClient(DefaultClient):
         ## Chat interface : TODO dynamic with n, not just 4
         # Blue team
         names = st.session_state.player_names
-        disabled = [False if name in list(st.contribution_table.keys()) else True for name in names]
+        disabled = [False if name in list(st.session_state.contribution_table.keys()) else True for name in names]
 
         write_team_chat_container(bp, 'blue', names, disabled)
         write_team_chat_container(rp, 'red', names, disabled)
