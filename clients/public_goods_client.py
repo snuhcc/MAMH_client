@@ -170,7 +170,7 @@ class PublicGoodsClient(DefaultClient):
     def main_page(self, HOST, PORT):
         self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
 
-        _, cp, _ = self.placeholder.columns([3,2,3])
+        _, cp, _ = self.placeholder.columns([1,2,1])
         with cp.container():
             st.markdown("### 🎮 Welcome to the New Game!")
 
