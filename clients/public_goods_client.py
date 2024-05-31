@@ -446,7 +446,7 @@ class PublicGoodsClient(DefaultClient):
                     st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
                     st.write("  -   Also, please do not use double enter in your message.")
                 with st.form(key='pmsg', border=False):
-                    public_message = st.text_area(label="📧 Public Message", value=public_message, key='publics')
+                    public_message = st.text_area(label="📧 Public Message", key='publics')
                     submitted = st.form_submit_button("Submit")
                 st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message}, disabled=not submitted)
             else:
