@@ -558,7 +558,7 @@ class PublicGoodsClient(DefaultClient):
                             data = buf[:-3].decode('utf-8')
                     if len(buf) == 1024:
                         while buf[-3:] != b'END':
-                            buf += self.session_state.server_socket.recv(1024)
+                            buf += st.session_state.server_socket.recv(1024)
                         data = buf[:-3].decode('utf-8')
                     
                     data_list = data.split('RPYS')[-1].split('\n\n')
