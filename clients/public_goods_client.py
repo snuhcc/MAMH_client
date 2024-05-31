@@ -307,8 +307,10 @@ class PublicGoodsClient(DefaultClient):
             
         
             st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
-            cur_bid = st.number_input("💰 Contribution", min_value=0, max_value=int(data_list[1]), key='bid')
-            st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={"cur_bid":cur_bid})
+            with st.form(key='bid', border=False):
+                cur_bid = st.number_input("💰 Contribution", min_value=0, max_value=int(data_list[1]), key='bid')
+                submitted = st.form_submit_button("Submit")
+            st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={"cur_bid":cur_bid}, disabled=not submitted)
 
 
     def turn_waiting_page(self):
@@ -443,8 +445,10 @@ class PublicGoodsClient(DefaultClient):
                     st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
                     st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
                     st.write("  -   Also, please do not use double enter in your message.")
-                public_message = st.text_area("📧 Public Message", key='publics')
-                st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message})
+                with st.form(key='pmsg', border=False):
+                    public_message = st.text_area(label="📧 Public Message", value=public_message, key='publics')
+                    submitted = st.form_submit_button("Submit")
+                st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message}, disabled=not submitted)
             else:
                 st.button("➡️ End Turn", key='button3', on_click=onclick)
 
