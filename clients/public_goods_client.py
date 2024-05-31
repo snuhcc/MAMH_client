@@ -10,7 +10,7 @@ def endpage():
     st.session_state.page = 4
 def msgpage():
     st.session_state.page = 5
-def change_value(v):
+def change_value(v): 
     return not v
 
 def sending_mail(player_msgs, time):
@@ -497,7 +497,7 @@ class PublicGoodsClient(DefaultClient):
         ## Chat interface : TODO dynamic with n, not just 4
         # Blue team
         names = st.session_state.player_names
-        disabled = [False for i in range(len(names))]
+        disabled = [False if name in list(st.contribution_table.keys()) else True for name in names]
 
         write_team_chat_container(bp, 'blue', names, disabled)
         write_team_chat_container(rp, 'red', names, disabled)
