@@ -15,7 +15,8 @@ def change_value(v):
 
 def sending_mail(player_msgs, time):
     sending = ""
-    for pname, msg in player_msgs.items():
+    for pidx, msg in player_msgs.items():
+        pname = st.session_state.player_names[pidx]
         if msg != "":
             sending += f"{pname}@{msg}\n\n" 
     st.session_state.server_socket.send(f'{time}\n\n{sending}END'.encode())
@@ -24,16 +25,118 @@ def sending_mail(player_msgs, time):
     for sends in sending.replace('@', ': ').split('\n\n'):
         if ':' in sends:
             name, msg = sends.split(':')
-            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)({time} {st.session_state.turn}) {msg}\n\n"
+            emoji = "🌞" if time == 'day' else "🌒"
+            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)({st.session_state.turn}-{emoji}) {msg}\n\n"
     st.session_state.client_log[st.session_state.turn] += "\n\n --- \n\n"
     st.session_state.session_control = False
+    st.session_state.tmp_submitted = {k:False for k in st.session_state.tmp_submitted.keys()}
+    st.session_state.tmp_chat_new_msg = {k:"" for k in st.session_state.tmp_chat_new_msg}
     if time == 'night':
         st.session_state.page += 1
     elif time == 'day':
         turnpage()
  
+def write_team_chat_container(con, team, names, disabled):
+    fc = con.container()
+    cb1, cb2 = con.columns([1,1])
+    cb1c = cb1.container(height=600)
+    cb3c = cb1.container(height=600)
+    cb2c = cb2.container(height=600)
+    cb4c = cb2.container(height=600)
+    eds = 0
+    if team == 'blue':
+        eds += write_chat_container(cb1c, names[0], disabled[0], 0)
+        eds += write_chat_container(cb3c, names[2], disabled[2], 2)
+        eds += write_chat_container(cb2c, names[1], disabled[1], 1)
+        eds += write_chat_container(cb4c, names[3], disabled[3], 3)
+    else:
+        eds += write_chat_container(cb1c, names[4], disabled[4], 4)
+        eds += write_chat_container(cb3c, names[6], disabled[6], 6)
+        eds += write_chat_container(cb2c, names[5], disabled[5], 5)
+        eds += write_chat_container(cb4c, names[7], disabled[7], 7)
+    fc.markdown(f"<h3 style='text-align: center; color:{team};'>{team.capitalize()} Team </h3>", unsafe_allow_html=True)
+    fc.markdown(f"<p style='text-align: center; '>Total Endowment 💰 {eds}</h1>", unsafe_allow_html=True)
+    
+
+def write_chat_container(con, cname, disabled, n):
+    cheight = 250
+    ncon = con.container()
+    concon = con.container(height=cheight, border=False)
+    if st.session_state.status_logdict[cname] == "":
+        endowment = 1200
+    else:
+        endowment = st.session_state.status_logdict[cname]
+    if cname == st.session_state.name:
+        with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
+            st.write(f"{cname} (💰: {endowment})")
+        #concon.write(f"endowment: {endowment}")
+    else:
+        with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
+            st.write(f"{cname} (💰: {endowment})")
+        #concon.write(f"endowment: {endowment}")
+        for msgs in st.session_state.message_logdict[cname].split('\n\n'):
+            if "(received)" in msgs:
+                name, msg = msgs.split("(received)")
+                if '(bot)' in cname:
+                    cname = cname.split(' (bot)')[0]
+                with concon.chat_message('assistant', avatar=f'person_images/{cname.strip()}.png'):
+                    st.write(msg)
+            elif "(send)" in msgs:
+                name, msg = msgs.split("(send)")
+                with concon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
+                    st.write(msg)
+        with con.form(key=f'sbmit{cname}', border=False):
+            st.session_state.tmp_chat_new_msg[n] = st.text_area(label='new message', value=st.session_state.tmp_chat_new_msg[n], key=f"nmsg{cname}", height=30, disabled=disabled)
+            submitted = st.form_submit_button("Submit",  disabled=disabled)
+            if submitted:
+                st.session_state.tmp_submitted[cname] = True
+            if st.session_state.tmp_submitted[cname]:
+                st.write("Successfully Editted.")
+    return int(endowment)
+
+def write_graph(vis_turn):
+    while True:
+        try:
+            contribution_df = pd.DataFrame(st.session_state.contribution_table)
+            contribution_df.columns = [name[0] for name in contribution_df.columns]
+            contribution_df['turn'] = list(range(0, vis_turn))
+            endowment_df = pd.DataFrame(st.session_state.endowment_table)
+            endowment_df.columns = [name[0] for name in endowment_df.columns]
+            endowment_df['turn'] = list(range(0, vis_turn))
+            break
+        except Exception as e:
+            #print(e)
+            continue
+        
+
+    st.write("### Graph")
+    gselect = st.selectbox("Graph to shown", ["contribution", "endowment"])
+    if gselect == 'contribution':
+        st.line_chart(contribution_df.set_index('turn'))
+    elif gselect == 'endowment':
+        st.line_chart(endowment_df.set_index('turn'))
+
+
+def write_public_messages(vis_turn):
+    st.write(f"### Public Messages at Turn {vis_turn}")
+    pmsg_con = st.container(border=True, height=500)
+    for msgstr in st.session_state.public_messages:
+        if ':' in msgstr:
+            if len(msgstr.split(':')) > 2:
+                n = msgstr.split(':')[0]
+                msg = msgstr.split(':')[-1]
+            else:
+                n, msg = msgstr.split(':')
+            if n[0] < 'E':
+                msg = f":blue[{n}]: {msg}"
+            else:
+                msg = f":red[{n}]: {msg}"
+            with pmsg_con.chat_message("assistant", avatar=f"person_images/{n.strip()}.png"):
+                st.markdown(msg)
+
 class PublicGoodsClient(DefaultClient):
     def __init__(self, placeholder):
+
         super().__init__(placeholder)
         pass
 
@@ -42,6 +145,7 @@ class PublicGoodsClient(DefaultClient):
         cur_bid = kwargs['cur_bid']
         st.session_state.server_socket.send(f'bid\n\n{cur_bid}'.encode())
         st.session_state.session_control = False
+        st.session_state.table_updated = False
         st.session_state.page += 1
 
     def button3(self, **kwargs):
@@ -52,10 +156,9 @@ class PublicGoodsClient(DefaultClient):
             checkbox_str = " ".join(["1" if b else "0" for b in kwargs['checkbox']])
             encoding_str = f"end_turn\n\n{pmsg_str}\n\n{checkbox_str}"
 
-        st.session_state.contribution_table = kwargs['contribution_table']
-        st.session_state.endowment_table = kwargs['endowment_table']
         st.session_state.server_socket.send(encoding_str.encode())
         st.session_state.session_control = False
+        st.session_state.table_updated = False
 
         st.session_state.page += 1
 
@@ -65,7 +168,10 @@ class PublicGoodsClient(DefaultClient):
 
     ### page implementations
     def main_page(self, HOST, PORT):
-        with self.placeholder.container():
+        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+
+        _, cp, _ = self.placeholder.columns([3,2,3])
+        with cp.container():
             st.markdown("### 🎮 Welcome to the New Game!")
 
             st.write("Type your information and connect to your server!")
@@ -80,6 +186,8 @@ class PublicGoodsClient(DefaultClient):
             st.button("🔗 Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
 
     def turn_page(self):
+        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+
         with self.placeholder:
             with st.spinner("⌛ Please wait until the server starts the turn."):
                 if not st.session_state.session_control:
@@ -112,11 +220,12 @@ class PublicGoodsClient(DefaultClient):
                         for reply in all_replys.split('\n\n'):
                             if ':' in reply:
                                 name, msg = reply.split(':')
-                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)(day {st.session_state.turn}) {msg}\n\n"
+                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)({st.session_state.turn}-🌞) {msg}\n\n"
         # start turn
-        with self.placeholder.container():
+        bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
+        with cp.container():
             data_list = st.session_state.player_data
-            st.markdown(f"### Turn {st.session_state.turn} / 8 started.")
+            st.markdown(f"### Turn {st.session_state.turn} / 8 Bidding.")
             st.markdown(f"👤 **You are {st.session_state.name}.**")
             on = st.toggle(f"Click to see Round Rule.")
             if on:
@@ -127,51 +236,79 @@ class PublicGoodsClient(DefaultClient):
                 st.markdown(f"  -   For example, if all people bid at least {int(data_list[2]) // 2}, you can deserve all {data_list[2]} fare.")
                 st.markdown("   -   Contribute smart to survive 8 rounds!")
 
-            st.markdown(f"#### **Your status**")
-            col1, col2 = st.columns(2)
-            col1.image(f'person_images/{st.session_state.name}.png')
-            col2.write(f"**Name**       : {data_list[0]}")
-            col2.write(f"**Endowment**  : {data_list[1]}")
+            if st.session_state.turn != 1:
+                ## graph
+                write_graph(st.session_state.turn)
 
+                ## public messages
+                write_public_messages(st.session_state.turn-1)
+
+            ## first turn show team info
+            else:
+                st.markdown(f"#### **Your status**")
+                col1, col2 = st.columns(2)
+                col1.image(f'person_images/{st.session_state.name}.png')
+                col2.write(f"**Name**       : {data_list[0]}")
+                #col2.write(f"**Endowment**  : {data_list[1]}")
+
+                other_players_info = data_list[4].split('   ')[:-1]
+                team_player_num = len(other_players_info)//2
+                if 'tmp_chat_new_msg' not in st.session_state:
+                    st.session_state.tmp_chat_new_msg = defaultdict(str)
+                if st.session_state.name[0] < 'E':
+                    st.markdown(f"### :blue[Blue Team] (YOURS)")
+                else:
+                    st.markdown(f"### :blue[Blue Team]")
+                bcols = st.columns(team_player_num) # TODO: make dynamic
+
+                for i, col in enumerate(bcols):
+                    c_name = other_players_info[i].split(':')[0][1:]
+                    c_endowment = other_players_info[i].split('- ')[-1].split(' ')[0]
+                    col.write(f"{c_name}")
+                    if c_name not in st.session_state.status_logdict.keys():
+                        st.session_state.status_logdict[c_name] = ""
+                    if '(bot)' in c_name:
+                        c_name = c_name.split(' (bot)')[0]
+                    col.image(f'person_images/{c_name}.png')
+                    #col.write(f"**Endowment :** {c_endowment}")
+                
+                if st.session_state.name[0] > 'D':
+                    st.markdown(f"### :red[Red Team] (YOURS)")
+                else:
+                    st.markdown(f"### :red[Red Team]")
+                rcols = st.columns(team_player_num) # TODO: make dynamic
+
+                for i, col in enumerate(rcols):
+                    c_name = other_players_info[i+team_player_num].split(':')[0][1:]
+                    c_endowment = other_players_info[i+team_player_num].split('- ')[-1].split(' ')[0]
+                    col.write(f"{c_name}")
+                    if c_name not in st.session_state.status_logdict.keys():
+                        st.session_state.status_logdict[c_name] = ""
+                    if '(bot)' in c_name:
+                        c_name = c_name.split(' (bot)')[0]
+                    col.image(f'person_images/{c_name}.png')
+                    #col.write(f"**Endowment :** {c_endowment}")
             
+
+            ## Chat interface : TODO dynamic with n, not just 4
+            # Blue team
             other_players_info = data_list[4].split('   ')[:-1]
-            cols = st.columns(len(other_players_info)) # TODO: make dynamic
-            for i, col in enumerate(cols):
-                c_name = other_players_info[i].split(':')[0][1:]
-                c_endowment = other_players_info[i].split('- ')[-1].split(' ')[0]
-                col.write(f"{c_name}")
-                if '(bot)' in c_name:
-                    c_name = c_name.split(' (bot)')[0]
-                col.image(f'person_images/{c_name}.png')
-                col.write(f"**Endowment :** {c_endowment}")
-            
-            if st.session_state.turn > 1:
-                with st.sidebar:
-                    st.image(f'person_images/{st.session_state.name}.png', width=100)
-                    st.title(f"📥 {st.session_state.name}'s Message Box")
-                    names = list(st.session_state.status_logdict.keys())
-                    names.remove(st.session_state.name)
-                    selected = st.radio('Select one to see chats.', names, horizontal=True)
-                    if selected in names:
-                        st.write(f"endowment: {st.session_state.status_logdict[selected]}")
-                        for msgs in st.session_state.message_logdict[selected.strip()].split('\n\n'):
-                            if "(received)" in msgs:
-                                name, msg = msgs.split("(received)")
-                                if '(bot)' in selected:
-                                    selected = selected.split(' (bot)')[0]
-                                with st.chat_message('assistant', avatar=f'person_images/{selected.strip()}.png'):
-                                    st.write(msg)
-                            elif "(send)" in msgs:
-                                name, msg = msgs.split("(send)")
-                                with st.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
-                                    st.write(msg)
+            st.session_state.player_names = list(st.session_state.status_logdict.keys())
+            st.session_state.tmp_submitted = {k: False for k in st.session_state.status_logdict.keys()}
+            disabled = [True for i in range(len(other_players_info))]
+            write_team_chat_container(bp, 'blue', st.session_state.player_names, disabled)
+            write_team_chat_container(rp, 'red', st.session_state.player_names, disabled)
 
+            
+        
             st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
             cur_bid = st.number_input("💰 Contribution", min_value=0, max_value=int(data_list[1]), key='bid')
             st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={"cur_bid":cur_bid})
 
 
     def turn_waiting_page(self):
+        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+
         with self.placeholder:
             with st.spinner("⌛ Waiting for other players to finish betting..."):
                 if not st.session_state.session_control:
@@ -206,58 +343,85 @@ class PublicGoodsClient(DefaultClient):
                         ed_str = ed
                         cur_ed = int(ed.split(":")[1].strip())
 
-        with self.placeholder.container():
+        bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
+
+        ## Chat interface : TODO dynamic with n, not just 4
+        # Blue team
+        names = st.session_state.player_names
+        disabled = [True for i in range(len(names))]
+
+        write_team_chat_container(bp, 'blue', names, disabled)
+        write_team_chat_container(rp, 'red', names, disabled)
+        with cp:
+
             col1, col2, col3 = st.columns([1,2,1])
-            col2.write(f"#### 🏦 {data_list[1]}")
-            st.markdown(f"### Turn {st.session_state.turn} Ended")
-            st.markdown("#### **Your After Endowment**")
-            col1, col2 = st.columns(2)
-            col1.image(f'person_images/{st.session_state.name}.png', width=250)
-            col2.write(f"**Name**       : {ed_str.split(':')[0].strip()}")
-            col2.write(f"**Endowment**  : {ed_str.split(':')[1].strip()}")
-            st.markdown("#### **Overall Endowment**")
+            st.markdown(f"### Turn {st.session_state.turn} Ended.")
+            st.markdown(f"### :red[🏦 {data_list[1]}]")
+            
+            st.markdown("#### **Contribution**")
+            # col1, col2 = st.columns(2)
+            
+            
             other_players_info = data_list[2].split('\n')
             other_players_cont = data_list[3].split('\n')
 
-            
-            cols = st.columns(len(other_players_info))
-            contribution_table = copy.deepcopy(st.session_state.contribution_table)
-            endowment_table = copy.deepcopy(st.session_state.endowment_table)
+            team_player_num = len(other_players_info)//2
+            st.write(":blue[Blue Team]")
+            bcols = st.columns(team_player_num)
+            st.write(":red[Red Team]")
+            rcols = st.columns(team_player_num)
+            total_conts = 0
             for i, pinfo in enumerate(other_players_info):
                 c_name = pinfo.split(':')[0].strip()
                 c_endowment = pinfo.split(':')[1].strip()
                 c_contribution = other_players_cont[i].split(':')[1].strip()
                 str_endowment = "\n" + c_endowment
                 str_contribution = "\n" + c_contribution
-                if c_name not in contribution_table.keys():
-                    contribution_table[c_name] = [0, int(c_contribution)]
-                else:
-                    contribution_table[c_name].append(int(c_contribution))
-                if c_name not in endowment_table.keys():
-                    endowment_table[c_name] = [1200, int(c_endowment)] # TODO: dynamic init endo
-                else:
-                    endowment_table[c_name].append(int(c_endowment))
+                if not st.session_state.table_updated:
+                    if c_name not in st.session_state.contribution_table.keys():
+                        st.session_state.contribution_table[c_name] = [0, int(c_contribution)]
+                    else:
+                        st.session_state.contribution_table[c_name].append(int(c_contribution))
+                    if c_name not in st.session_state.endowment_table.keys():
+                        st.session_state.endowment_table[c_name] = [1200, int(c_endowment)] # TODO: dynamic init endo
+                    else:
+                        st.session_state.endowment_table[c_name].append(int(c_endowment))
+                    total_conts += int(c_contribution)
                 
-                
-
-                cols[i].write(f"{c_name}")
+                if i < team_player_num:
+                    col = bcols[i]
+                else:
+                    col = rcols[i-team_player_num]
+                col.write(f"{c_name}")
                 if '(bot)' in c_name:
                     c_name = c_name.split(' (bot)')[0]
-                cols[i].image(f'person_images/{c_name}.png')
-                cols[i].markdown(f"**Contribution**  {str_contribution}")
-                cols[i].markdown(f"**Endowment**   {str_endowment}")
-                if len(st.session_state.checkboxs) == len(cols):
-                    if c_name == st.session_state.name:
-                        st.session_state.checkboxs[i] = cols[i].checkbox(f"Me", value=st.session_state.checkboxs[i], key=f'ch{i}', disabled=True)
-                    else:
-                        st.session_state.checkboxs[i] = cols[i].checkbox(f"Is he(she) AI?", value=st.session_state.checkboxs[i], key=f'ch{i}')
+                col.image(f'person_images/{c_name}.png')
+                col.markdown(f"💸 {str_contribution}")
+                # if len(st.session_state.checkboxs) == len(cols):
+                #     if c_name == st.session_state.name:
+                #         st.session_state.checkboxs[i] = cols[i].checkbox(f"Me", value=st.session_state.checkboxs[i], key=f'ch{i}', disabled=True)
+                #     else:
+                #         st.session_state.checkboxs[i] = cols[i].checkbox(f"Is he(she) AI?", value=st.session_state.checkboxs[i], key=f'ch{i}')
             
-            tmp_keys = list(endowment_table.keys()).copy()
+            if not st.session_state.table_updated:
+                st.session_state.tmp_conts = total_conts//8 if "succeed" in data_list[1] else 0
+            st.session_state.table_updated = True
+            st.write(f"You've got ➕ 💰{st.session_state.tmp_conts}.")
+            st.write(f"You've paid ➖ 💰 300 fare.")
+
+            ## graph
+            write_graph(st.session_state.turn+1)
+
+            ## public messages
+            if st.session_state.turn > 1:
+                write_public_messages(st.session_state.turn-1)
+
+            tmp_keys = list(st.session_state.endowment_table.keys()).copy()
             for k in tmp_keys:
-                if k in endowment_table.keys():
-                    if endowment_table[k][-1] <= 0:
-                        contribution_table.pop(k, None)
-                        endowment_table.pop(k, None)
+                if k in st.session_state.endowment_table.keys():
+                    if st.session_state.endowment_table[k][-1] <= 0:
+                        st.session_state.contribution_table.pop(k, None)
+                        st.session_state.endowment_table.pop(k, None)
             onclick = self.button3
             if data_list[4] != 'none':
                 st.write('\n\n'.join(data_list[4].split('\n')))
@@ -268,18 +432,21 @@ class PublicGoodsClient(DefaultClient):
                     public_message = ""
 
             if onclick != endpage:
-                st.write("---")
-                st.write("Write message to public!")
-                st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
-                st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-                st.write("  -   Also, please do not use double enter in your message.")
+                st.write("### Write Public Message")
+                on = st.toggle(f"Click to see Message Rule.")
+                if on:
+                    st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
+                    st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                    st.write("  -   Also, please do not use double enter in your message.")
                 public_message = st.text_area("📧 Public Message", key='publics')
-                st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message, "contribution_table": contribution_table, "endowment_table": endowment_table})
+                st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message})
             else:
                 st.button("➡️ End Turn", key='button3', on_click=onclick)
 
 
     def turn_end_page(self):
+        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+
         with self.placeholder:
             with st.spinner("⌛ Waiting for other players to finish checking results..."):
                 if not st.session_state.session_control:
@@ -301,18 +468,20 @@ class PublicGoodsClient(DefaultClient):
             st.button("➡️ Next", key='button4', on_click=onclick)
 
     def night_msg_page(self):
+        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+
         with self.placeholder:
             with st.spinner("🌒 Waiting for the server to start night..."):
                 if not st.session_state.session_control:
                     data = ""
-                    while 'start' not in data:
+                    while 'STP' not in data:
                         buf = st.session_state.server_socket.recv(1024)
                         data = buf.decode('utf-8')
                     if len(buf) == 1024:
                         while buf[-3:] != b'END':
                             buf += st.session_state.server_socket.recv(1024)
                         data = buf[:-3].decode('utf-8')
-                    public_messages = 'start'.join(data.split('start')[1:]).split('\n\n')
+                    public_messages = data.split('STP')[-1].split('\n\n')
                     st.session_state.public_messages = public_messages
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
@@ -323,92 +492,41 @@ class PublicGoodsClient(DefaultClient):
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
                     st.session_state.pname_list = pname_list
             
-
         
-        with self.placeholder.container():
-            with st.sidebar:
-                st.image(f'person_images/{st.session_state.name}.png', width=100)
-                st.title(f"📥 {st.session_state.name}'s Message Box")
-                names = list(st.session_state.status_logdict.keys())
-                names.remove(st.session_state.name)
-                selected = st.radio('Select one to see chats.', names, horizontal=True)
-                if selected in names:
-                    st.write(f"endowment: {st.session_state.status_logdict[selected]}")
-                    for msgs in st.session_state.message_logdict[selected.strip().strip()].split('\n\n'):
-                        if "(received)" in msgs:
-                            name, msg = msgs.split("(received)")
-                            if '(bot)' in selected:
-                                selected = selected.split(' (bot)')[0]
-                            with st.chat_message(name='assistant', avatar=f'person_images/{selected.strip()}.png'):
-                                st.write(msg)
-                        elif "(send)" in msgs:
-                            name, msg = msgs.split("(send)")
-                            with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
-                                st.write(msg)
-            st.markdown("### 🌒 **Night Secret Mailbox**")
+        bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
+        ## Chat interface : TODO dynamic with n, not just 4
+        # Blue team
+        names = st.session_state.player_names
+        disabled = [False for i in range(len(names))]
 
-            st.write("Write secret messages to other players!")
-            st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
-            st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-            st.write("  -   Also, please do not use double enter in your message.")
-        
-            while True:
-                try:
-                    contribution_df = pd.DataFrame(st.session_state.contribution_table)
-                    contribution_df.columns = [name[0] for name in contribution_df.columns]
-                    contribution_df['turn'] = list(range(0, st.session_state.turn))
-                    endowment_df = pd.DataFrame(st.session_state.endowment_table)
-                    endowment_df.columns = [name[0] for name in endowment_df.columns]
-                    endowment_df['turn'] = list(range(0, st.session_state.turn))
-                    break
-                except Exception as e:
-                    #print(e)
-                    for c_name in st.session_state.contribution_table.keys():
-                        if len(st.session_state.contribution_table[c_name]) > st.session_state.turn:
-                            st.session_state.contribution_table[c_name].pop()
-                    for c_name in st.session_state.endowment_table.keys():
-                        if len(st.session_state.endowment_table[c_name]) > st.session_state.turn:
-                            st.session_state.endowment_table[c_name].pop()
-                    continue
+        write_team_chat_container(bp, 'blue', names, disabled)
+        write_team_chat_container(rp, 'red', names, disabled)
+
+        with cp.container():
+
+            st.markdown(f"### 🌒 **Turn {st.session_state.turn} Night Mailbox**")
+
+            ## graph
+            write_graph(st.session_state.turn)
+
+            ## public messages
+            write_public_messages(st.session_state.turn)
+
                     
+            st.write("### Write secret message")
+            on = st.toggle(f"Click to see Message Rule.")
+            if on:
+                st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+                st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                st.write("  -   Also, please do not use double enter in your message.")
             
-            col1, col2 = st.columns(2)
-            col1.write("Contributions")
-            col1.line_chart(contribution_df.set_index('turn'))
-            col2.write("Endowments")
-            col2.line_chart(endowment_df.set_index('turn'))
-            st.write('---')
-            col1, col2 = st.columns([0.9, 0.1])
-            pmsg_list = {}
-            for msgstr in st.session_state.public_messages:
-                if ':' in msgstr:
-                    if len(msgstr.split(':')) > 2:
-                        n = msgstr.split(':')[0]
-                        msg = msgstr.split(':')[-1]
-                    else:
-                        n, msg = msgstr.split(':')
-                    pmsg_list[n] = msg
-
-            player_msgs = {}
-            with col1.form(key='nightmsg'):
-                
-                for i, pname in enumerate(st.session_state.pname_list):
-                    if pname == st.session_state.name or pname.strip() == "":
-                        continue
-                    if len(st.session_state.contribution_table[pname.strip()]) == st.session_state.turn:
-                        st.write(f"📡 Public Messages from {pname}")
-                        if pmsg_list[pname].strip() == "":
-                            st.write("❌ No public message.")
-                        else:
-                            cc = st.container(border=True)
-                            cc.write(pmsg_list[pname])
-                        player_msgs[pname] = st.text_area(f"📧 Message to {pname}", key=f"nmsg{i}")
-                nightmsg_btn = st.form_submit_button('Form update')
-                
-            if nightmsg_btn:
-                col2.button('📤 Send', on_click=sending_mail, kwargs={'time':'night','player_msgs': player_msgs})
+            st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
+        
+            checked = st.checkbox('Done!', key = f'ch')
+            st.button('📤 Send', on_click=sending_mail, kwargs={'time':'night','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked)
     
     def day_msg_page(self):
+        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
         with self.placeholder:
             with st.spinner("🌞 Waiting for the server to start day..."):
                 if not st.session_state.session_control:
@@ -432,67 +550,53 @@ class PublicGoodsClient(DefaultClient):
                     for data_log in data_list:
                         if ':' in data_log:
                             name, msg = data_log.split(':')
-                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)(night {st.session_state.turn}){msg}\n\n"
+                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)({st.session_state.turn}-🌒){msg}\n\n"
                     for d in st.session_state.rdatas:
                         if d == "" or d == "END":
                             continue
                         if d.split(':')[0] == 'Messages':
-                            st.session_state.rnames.append(d.split(':')[1])
+                            st.session_state.rnames.append(d.split(':')[1].strip())
                         else:
-                            st.session_state.rnames.append(d.split(':')[0])
-            with st.sidebar:
-                st.image(f'person_images/{st.session_state.name}.png', width=100)
-                st.title(f"📥 {st.session_state.name}'s Message Box")
-                names = list(st.session_state.status_logdict.keys())
-                names.remove(st.session_state.name)
-                selected = st.radio('Select one to see chats.', names, horizontal=True)
-                if selected in names:
-                    st.write(f"endowment: {st.session_state.status_logdict[selected]}")
-                    for msgs in st.session_state.message_logdict[selected.strip()].split('\n\n'):
-                        if "(received)" in msgs:
-                            name, msg = msgs.split("(received)")
-                            if '(bot)' in selected:
-                                selected = selected.split(' (bot)')[0]
-                            with st.chat_message(name='assistant', avatar=f'person_images/{selected.strip()}.png'):
-                                st.write(msg)
-                        elif "(send)" in msgs:
-                            name, msg = msgs.split("(send)")
-                            with st.chat_message(name='user', avatar=f'person_images/{st.session_state.name}.png'):
-                                st.write(msg)
+                            st.session_state.rnames.append(d.split(':')[0].strip())
+            
+        bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
+        ## Chat interface : TODO dynamic with n, not just 4
+        # Blue team
+        names = st.session_state.player_names
+        disabled = [False if name in st.session_state.rnames else True for name in names]
+        write_team_chat_container(bp, 'blue', names, disabled)
+        write_team_chat_container(rp, 'red', names, disabled)
 
+        with cp.container():
+            st.markdown(f"### 🌞 **Turn {st.session_state.turn} Day Mailbox**")
 
-        with self.placeholder.container():
-            st.markdown("### 🌞 **Day Secret Mailbox**")
+            ## graph
+            write_graph(st.session_state.turn)
 
+            ## public messages
+            write_public_messages(st.session_state.turn)
+
+            st.write("### Write replys")
             if st.session_state.rdatas[0] != "":
-                st.write("📩 You received messages:")
-                for d in st.session_state.rdatas:
-                    if d == "" or d == "END":
-                        continue
-                    if d.split(':')[0] == 'Messages':
-                        st.write(f"📧 {d.split(':')[1]}: {d.split(':')[2]}")
-                    else:
-                        st.write(f"📧 {d.split(':')[0]}: {d.split(':')[1]}")
-                
-                col1, col2 = st.columns([0.9, 0.1])
-                with col1.form(key='dayform'):
-                    dmsgc = st.container()
-                    dmsgc.write("**Write your reply!**")
-                    player_msgs = {}
-                    for rname in st.session_state.rnames:
-                        if rname != "":
-                            player_msgs[rname] = dmsgc.text_area(f"📧 Reply to {rname}", key=f'tadms{rname}')
-                    smsg = "📤 Send"
-                    dayform_btn = st.form_submit_button('Form update')
-                if dayform_btn:
-                    col2.button(smsg, key='daysend', on_click=sending_mail, kwargs={'time': 'day', 'player_msgs': player_msgs})
-
+                st.write("📩 You've got messages from:")
+                cols = st.columns(len(st.session_state.rnames))
+                for i, col in enumerate(cols):
+                    col.write(st.session_state.rnames[i])
+                    col.image(f'person_images/{st.session_state.rnames[i]}.png', width=100)
+                on = st.toggle(f"Click to see Message Rule.")
+                if on:
+                    st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+                    st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                    st.write("  -   Also, please do not use double enter in your message.")
             else:
-                st.write("❌ You received no messages.")
-                player_msgs = {}
-                smsg = "➡️ Next"
+                st.write("❌ You've got no messages.")
+                st.write("Just press Send button.")
+            
+            st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
+            
+            checked2 = st.checkbox('Done!', key = f'ch2')
+            st.button('📤 Send', key='daysend', on_click=sending_mail, kwargs={'time': 'day','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked2)
 
-                st.button(smsg, key='daysend', on_click=sending_mail, kwargs={'time': 'day', 'player_msgs': player_msgs})
 
     def game_end_page(self):
         st.write("🎯 The game ends.")

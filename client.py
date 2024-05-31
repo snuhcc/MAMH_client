@@ -3,6 +3,8 @@ import argparse
 from collections import defaultdict
 from clients import client_list, select_client
 
+
+
 # HOST / PORT setting
 # socket info - for remote server
 # HOST = '0.0.0.0'
@@ -56,6 +58,15 @@ def initiation():
         st.session_state.checkboxs = []
     if "public_messages" not in st.session_state:
         st.session_state.public_messages = []
+    if "table_updated" not in st.session_state:
+        st.session_state.table_updated = False
+    if "tmp_submitted" not in st.session_state:
+        st.session_state.tmp_submitted = {}
+    if "tmp_conts" not in st.session_state:
+        st.session_state.tmp_conts = 0
+    if "player_names" not in st.session_state:
+        st.session_state.player_names = []
+
 
 if __name__ == '__main__':
     initiation()
