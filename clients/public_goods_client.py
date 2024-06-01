@@ -17,7 +17,7 @@ def sending_mail(player_msgs, time):
     sending = ""
     for pidx, msg in player_msgs.items():
         pname = st.session_state.player_names[pidx]
-        if msg != "":
+        if msg != "" and msg is not None:
             sending += f"{pname}@{msg}\n\n" 
     st.session_state.server_socket.send(f'{time}\n\n{sending}END'.encode())
     st.session_state.client_log[st.session_state.turn] += f"{time} Send \n\n"
@@ -36,7 +36,7 @@ def sending_mail(player_msgs, time):
     elif time == 'day':
         turnpage()
  
-def write_team_chat_container(con, team, names, disabled):
+def write_team_chat_container(con, team, names, disabled, time):
     fc = con.container()
     cb1, cb2 = con.columns([1,1])
     cb1c = cb1.container(height=600)
@@ -45,20 +45,20 @@ def write_team_chat_container(con, team, names, disabled):
     cb4c = cb2.container(height=600)
     eds = 0
     if team == 'blue':
-        eds += write_chat_container(cb1c, names[0], disabled[0], 0)
-        eds += write_chat_container(cb3c, names[2], disabled[2], 2)
-        eds += write_chat_container(cb2c, names[1], disabled[1], 1)
-        eds += write_chat_container(cb4c, names[3], disabled[3], 3)
+        eds += write_chat_container(cb1c, names[0], disabled[0], 0, time)
+        eds += write_chat_container(cb3c, names[2], disabled[2], 2, time)
+        eds += write_chat_container(cb2c, names[1], disabled[1], 1, time)
+        eds += write_chat_container(cb4c, names[3], disabled[3], 3, time)
     else:
-        eds += write_chat_container(cb1c, names[4], disabled[4], 4)
-        eds += write_chat_container(cb3c, names[6], disabled[6], 6)
-        eds += write_chat_container(cb2c, names[5], disabled[5], 5)
-        eds += write_chat_container(cb4c, names[7], disabled[7], 7)
+        eds += write_chat_container(cb1c, names[4], disabled[4], 4, time)
+        eds += write_chat_container(cb3c, names[6], disabled[6], 6, time)
+        eds += write_chat_container(cb2c, names[5], disabled[5], 5, time)
+        eds += write_chat_container(cb4c, names[7], disabled[7], 7, time)
     fc.markdown(f"<h3 style='text-align: center; color:{team};'>{team.capitalize()} Team </h3>", unsafe_allow_html=True)
     fc.markdown(f"<p style='text-align: center; '>Total Endowment 💰 {eds}</h1>", unsafe_allow_html=True)
     
 
-def write_chat_container(con, cname, disabled, n):
+def write_chat_container(con, cname, disabled, n, time):
     cheight = 250
     ncon = con.container()
     concon = con.container(height=cheight, border=False)
@@ -90,7 +90,7 @@ def write_chat_container(con, cname, disabled, n):
                 with concon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
                     st.write(msg)
         with con.form(key=f'sbmit{cname}', border=False):
-            st.session_state.tmp_chat_new_msg[n] = st.text_area(label='new message', value=st.session_state.tmp_chat_new_msg[n], key=f"nmsg{cname}", height=30, disabled=disabled)
+            st.session_state.tmp_chat_new_msg[n] = st.text_area(label='new message', value=None, key=f"nmsg{cname}_{time}_{st.session_state.turn}", height=30, disabled=disabled)
             submitted = st.form_submit_button("Submit",  disabled=disabled)
             if submitted:
                 st.session_state.tmp_submitted[cname] = True
@@ -305,8 +305,8 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.player_names = list(st.session_state.status_logdict.keys())
             st.session_state.tmp_submitted = {k: False for k in st.session_state.status_logdict.keys()}
             disabled = [True for i in range(len(st.session_state.player_names))]
-            write_team_chat_container(bp, 'blue', st.session_state.player_names, disabled)
-            write_team_chat_container(rp, 'red', st.session_state.player_names, disabled)
+            write_team_chat_container(bp, 'blue', st.session_state.player_names, disabled, "turn")
+            write_team_chat_container(rp, 'red', st.session_state.player_names, disabled, "turn")
 
             
         
@@ -361,8 +361,8 @@ class PublicGoodsClient(DefaultClient):
         names = st.session_state.player_names
         disabled = [True for i in range(len(names))]
         print(names)
-        write_team_chat_container(bp, 'blue', names, disabled)
-        write_team_chat_container(rp, 'red', names, disabled)
+        write_team_chat_container(bp, 'blue', names, disabled, "turnend")
+        write_team_chat_container(rp, 'red', names, disabled, "turnend")
         with cp:
 
             col1, col2, col3 = st.columns([1,2,1])
@@ -437,8 +437,12 @@ class PublicGoodsClient(DefaultClient):
             st.write(f"You've got ➕ 💰{st.session_state.tmp_conts}.")
             st.write(f"You've paid ➖ 💰 300 fare.")
             st.write(f"You've contributed ➖ 💰 {st.session_state.contribution_table[st.session_state.name][-1]}.")
-            st.write(f"Total Endowment change: {st.session_state.endowment_table[st.session_state.name][-2]} => {st.session_state.endowment_table[st.session_state.name][-1]}")
-
+            st.write(f"Total Endowment change:")
+            if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
+                st.write(f" :blue[{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]}]")
+            else:
+                st.write(f" :red[{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]}]")
+            
             ## graph
             write_graph(st.session_state.turn+1)
 
@@ -543,8 +547,8 @@ class PublicGoodsClient(DefaultClient):
         names = st.session_state.player_names
         disabled = [False if name in list(st.session_state.contribution_table.keys()) else True for name in names]
 
-        write_team_chat_container(bp, 'blue', names, disabled)
-        write_team_chat_container(rp, 'red', names, disabled)
+        write_team_chat_container(bp, 'blue', names, disabled, 'night')
+        write_team_chat_container(rp, 'red', names, disabled, "night")
 
         with cp.container():
 
@@ -607,16 +611,16 @@ class PublicGoodsClient(DefaultClient):
                             st.session_state.rnames.append(d.split(':')[1].strip())
                         else:
                             st.session_state.rnames.append(d.split(':')[0].strip())
-            
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         ## Chat interface : TODO dynamic with n, not just 4
         # Blue team
         names = st.session_state.player_names
         disabled = [False if name in st.session_state.rnames else True for name in names]
-        write_team_chat_container(bp, 'blue', names, disabled)
-        write_team_chat_container(rp, 'red', names, disabled)
+        write_team_chat_container(bp, 'blue', names, disabled, 'day')
+        write_team_chat_container(rp, 'red', names, disabled, 'day')
 
         with cp.container():
+            
             st.markdown(f"### 🌞 **Turn {st.session_state.turn} Day Mailbox**")
 
             ## graph
