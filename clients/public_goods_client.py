@@ -375,7 +375,7 @@ class PublicGoodsClient(DefaultClient):
             
             other_players_info = data_list[2].split('\n')
             other_players_cont = data_list[3].split('\n')
-
+            print(other_players_info)
             team_player_num = len(other_players_info)//2
             st.write(":blue[Blue Team]")
             bcols = st.columns(team_player_num)
