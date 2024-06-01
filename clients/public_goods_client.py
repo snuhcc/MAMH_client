@@ -304,7 +304,7 @@ class PublicGoodsClient(DefaultClient):
             other_players_info = data_list[4].split('   ')[:-1]
             st.session_state.player_names = list(st.session_state.status_logdict.keys())
             st.session_state.tmp_submitted = {k: False for k in st.session_state.status_logdict.keys()}
-            disabled = [True for i in range(len(other_players_info))]
+            disabled = [True for i in range(len(st.session_state.player_names))]
             write_team_chat_container(bp, 'blue', st.session_state.player_names, disabled)
             write_team_chat_container(rp, 'red', st.session_state.player_names, disabled)
 
