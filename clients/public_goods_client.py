@@ -356,7 +356,7 @@ class PublicGoodsClient(DefaultClient):
         # Blue team
         names = st.session_state.player_names
         disabled = [True for i in range(len(names))]
-
+        print(names)
         write_team_chat_container(bp, 'blue', names, disabled)
         write_team_chat_container(rp, 'red', names, disabled)
         with cp:
