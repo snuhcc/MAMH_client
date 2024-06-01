@@ -71,7 +71,7 @@ def write_chat_container(con, cname, disabled, n):
             st.write(f"{cname} (💰: {endowment})")
         #concon.write(f"endowment: {endowment}")
     else:
-        if endowment <= 0:
+        if int(endowment) <= 0:
             with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
                 st.write(f"{cname} (❌ eliminated.)")
         else:
