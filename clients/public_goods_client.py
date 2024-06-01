@@ -71,8 +71,12 @@ def write_chat_container(con, cname, disabled, n):
             st.write(f"{cname} (💰: {endowment})")
         #concon.write(f"endowment: {endowment}")
     else:
-        with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
-            st.write(f"{cname} (💰: {endowment})")
+        if endowment <= 0:
+            with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
+                st.write(f"{cname} (❌ eliminated.)")
+        else:
+            with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
+                st.write(f"{cname} (💰: {endowment})")
         #concon.write(f"endowment: {endowment}")
         for msgs in st.session_state.message_logdict[cname].split('\n\n'):
             if "(received)" in msgs:
