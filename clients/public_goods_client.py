@@ -376,12 +376,27 @@ class PublicGoodsClient(DefaultClient):
             other_players_info = data_list[2].split('\n')
             other_players_cont = data_list[3].split('\n')
             print(other_players_info)
-            team_player_num = len(other_players_info)//2
-            st.write(":blue[Blue Team]")
-            bcols = st.columns(team_player_num)
-            st.write(":red[Red Team]")
-            rcols = st.columns(team_player_num)
+            team_player_names = [pinfo.split(':')[0].strip() for pinfo in other_players_info]
+            team_player_num = len(team_player_names)
+            rctr = -1
+            for i, pname in enumerate(team_player_names):
+                if pname[0] > 'D':
+                    rctr = i
+                    break
+            if rctr == -1:
+                st.write(":blue[Blue Team]")
+                bcols = st.columns(team_player_num)
+            elif rctr == 0:
+                st.write(":red[Red Team]")
+                rcols = st.columns(team_player_num)
+            else:
+                st.write(":blue[Blue Team]")
+                bcols = st.columns(rctr)
+                st.write(":red[Red Team]")
+                rcols = st.columns(team_player_num-rctr)
             total_conts = 0
+            blue_ctr = 0
+            red_ctr = 0
             for i, pinfo in enumerate(other_players_info):
                 c_name = pinfo.split(':')[0].strip()
                 c_endowment = pinfo.split(':')[1].strip()
@@ -399,10 +414,12 @@ class PublicGoodsClient(DefaultClient):
                         st.session_state.endowment_table[c_name].append(int(c_endowment))
                     total_conts += int(c_contribution)
                 
-                if i < team_player_num:
-                    col = bcols[i]
+                if c_name[0] < 'E':
+                    col = bcols[blue_ctr]
+                    blue_ctr+=1
                 else:
-                    col = rcols[i-team_player_num]
+                    col = rcols[red_ctr]
+                    red_ctr+=1
                 col.write(f"{c_name}")
                 if '(bot)' in c_name:
                     c_name = c_name.split(' (bot)')[0]
