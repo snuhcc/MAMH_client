@@ -440,7 +440,7 @@ class PublicGoodsClient(DefaultClient):
             if not st.session_state.table_updated:
                 st.session_state.tmp_conts = total_conts*2//8 if "succeed" in data_list[1] else 0
             st.session_state.table_updated = True
-            st.write(f"Total Endowment change:")
+            st.markdown("#### **Total Endowment change**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
                 st.write(f"{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]} (➕ {st.session_state.endowment_table[st.session_state.name][-1] - st.session_state.endowment_table[st.session_state.name][-2]})")
