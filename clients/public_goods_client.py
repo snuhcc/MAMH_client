@@ -64,7 +64,7 @@ def write_chat_container(con, cname, disabled, n, time):
     concon = con.container(height=cheight, border=False)
     
     if '(bot)' in cname:
-        iname = iname.split(' (bot)')[0]
+        iname = cname.split(' (bot)')[0]
     else:
         iname = cname
     if st.session_state.status_logdict[cname] == "":
