@@ -443,13 +443,16 @@ class PublicGoodsClient(DefaultClient):
             st.write(f"Total Endowment change:")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
+                st.write(f"{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]} (➕ {st.session_state.endowment_table[st.session_state.name][-1] - st.session_state.endowment_table[st.session_state.name][-2]})")
+
             else:
                 st.write("➖ 💰")
-            st.write(f"{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]}")
+                st.write(f"{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]} (➖ {st.session_state.endowment_table[st.session_state.name][-2] - st.session_state.endowment_table[st.session_state.name][-1]})")
 
             
+            
             ## graph
-            write_graph(st.session_state.turn+1)
+            #write_graph(st.session_state.turn+1)
 
             ## public messages
             if st.session_state.turn > 1:
