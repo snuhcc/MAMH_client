@@ -62,20 +62,26 @@ def write_chat_container(con, cname, disabled, n, time):
     cheight = 250
     ncon = con.container()
     concon = con.container(height=cheight, border=False)
+    
+    if '(bot)' in cname:
+        iname = iname.split(' (bot)')[0]
+    else:
+        iname = cname
     if st.session_state.status_logdict[cname] == "":
         endowment = 1200
     else:
         endowment = st.session_state.status_logdict[cname]
+    
     if cname == st.session_state.name:
         with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
             st.write(f"{cname} (💰: {endowment})")
         #concon.write(f"endowment: {endowment}")
     else:
         if int(endowment) <= 0:
-            with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
+            with ncon.chat_message('user', avatar=f'person_images/{iname}.png'):
                 st.write(f"{cname} (❌ eliminated.)")
         else:
-            with ncon.chat_message('user', avatar=f'person_images/{cname}.png'):
+            with ncon.chat_message('user', avatar=f'person_images/{iname}.png'):
                 st.write(f"{cname} (💰: {endowment})")
         #concon.write(f"endowment: {endowment}")
         for msgs in st.session_state.message_logdict[cname].split('\n\n'):
@@ -83,7 +89,7 @@ def write_chat_container(con, cname, disabled, n, time):
                 name, msg = msgs.split("(received)")
                 if '(bot)' in cname:
                     cname = cname.split(' (bot)')[0]
-                with concon.chat_message('assistant', avatar=f'person_images/{cname.strip()}.png'):
+                with concon.chat_message('assistant', avatar=f'person_images/{iname.strip()}.png'):
                     st.write(msg)
             elif "(send)" in msgs:
                 name, msg = msgs.split("(send)")
@@ -634,8 +640,11 @@ class PublicGoodsClient(DefaultClient):
                 st.write("📩 You've got messages from:")
                 cols = st.columns(len(st.session_state.rnames))
                 for i, col in enumerate(cols):
+                    cname = st.session_state.rnames[i]
+                    if '(bot)' in cname:
+                        cname = cname.split(' (bot)')[0]
                     col.write(st.session_state.rnames[i])
-                    col.image(f'person_images/{st.session_state.rnames[i]}.png', width=100)
+                    col.image(f'person_images/{cname}.png', width=100)
                 on = st.toggle(f"Click to see Message Rule.")
                 if on:
                     st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
