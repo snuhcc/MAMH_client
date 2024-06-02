@@ -440,14 +440,15 @@ class PublicGoodsClient(DefaultClient):
             if not st.session_state.table_updated:
                 st.session_state.tmp_conts = total_conts//8 if "succeed" in data_list[1] else 0
             st.session_state.table_updated = True
-            st.write(f"You've got ➕ 💰{st.session_state.tmp_conts}.")
-            st.write(f"You've paid ➖ 💰 300 fare.")
-            st.write(f"You've contributed ➖ 💰 {st.session_state.contribution_table[st.session_state.name][-1]}.")
             st.write(f"Total Endowment change:")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write(f" :blue[{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]}]")
             else:
                 st.write(f" :red[{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]}]")
+            
+            st.write(f"You've got ➕ 💰{st.session_state.tmp_conts} by contribution.")
+            st.write(f"You've paid ➖ 💰 300 fare.")
+            st.write(f"You've contributed ➖ 💰 {st.session_state.contribution_table[st.session_state.name][-1]}.")
             
             ## graph
             write_graph(st.session_state.turn+1)
