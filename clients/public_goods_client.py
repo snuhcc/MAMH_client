@@ -141,6 +141,7 @@ def write_public_messages(vis_turn):
                 msg = f":blue[{n}]: {msg}"
             else:
                 msg = f":red[{n}]: {msg}"
+            print(msgstr, n, msg)
             with pmsg_con.chat_message("assistant", avatar=f"person_images/{n.strip()}.png"):
                 st.markdown(msg)
 
