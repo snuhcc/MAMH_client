@@ -461,9 +461,10 @@ class PublicGoodsClient(DefaultClient):
             tmp_keys = list(st.session_state.endowment_table.keys()).copy()
             for k in tmp_keys:
                 if k in st.session_state.endowment_table.keys():
-                    if st.session_state.endowment_table[k][-1] <= 0:
-                        st.session_state.contribution_table.pop(k, None)
-                        st.session_state.endowment_table.pop(k, None)
+                    if k != st.session_state.name:
+                        if st.session_state.endowment_table[k][-1] <= 0:
+                            st.session_state.contribution_table.pop(k, None)
+                            st.session_state.endowment_table.pop(k, None)
             onclick = self.button3
             if data_list[4] != 'none':
                 st.write('\n\n'.join(data_list[4].split('\n')))
