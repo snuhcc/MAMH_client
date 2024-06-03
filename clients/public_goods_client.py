@@ -100,7 +100,7 @@ def write_chat_container(con, cname, disabled, n, time):
                 st.session_state.tmp_submitted[cname] = True
             if st.session_state.tmp_submitted[cname]:
                 st.write("Successfully Editted.")
-    return int(endowment)
+    return int(endowment) if int(endowment) >= 0 else 0
 
 def write_graph(vis_turn):
     while True:
