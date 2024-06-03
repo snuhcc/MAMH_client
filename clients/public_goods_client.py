@@ -240,7 +240,6 @@ class PublicGoodsClient(DefaultClient):
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         with cp.container():
             data_list = st.session_state.player_data
-            st.write(data_list)
             st.markdown(f"### Turn {st.session_state.turn} / {data_list[-1]} Bidding.")
             st.markdown(f"👤 **You are {st.session_state.name}.**")
             on = st.toggle(f"Click to see Round Rule.")
