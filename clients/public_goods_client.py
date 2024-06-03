@@ -87,8 +87,6 @@ def write_chat_container(con, cname, disabled, n, time):
         for msgs in st.session_state.message_logdict[cname].split('\n\n'):
             if "(received)" in msgs:
                 name, msg = msgs.split("(received)")
-                if '(bot)' in cname:
-                    cname = cname.split(' (bot)')[0]
                 with concon.chat_message('assistant', avatar=f'person_images/{iname.strip()}.png'):
                     st.write(msg)
             elif "(send)" in msgs:
