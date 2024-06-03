@@ -240,7 +240,7 @@ class PublicGoodsClient(DefaultClient):
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         with cp.container():
             data_list = st.session_state.player_data
-            if int(data_list[-3]) not in list(range(8)):
+            if data_list[-3] not in [str(i) for i in range(8)]:
                 st.markdown(f"### Turn {st.session_state.turn} / {data_list[-2]} Bidding.")
             else:
                 st.markdown(f"### Turn {st.session_state.turn} / {data_list[-3]} Bidding.")
