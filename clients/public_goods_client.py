@@ -667,4 +667,4 @@ class PublicGoodsClient(DefaultClient):
         st.write("Thank you for participate!")
         
 
-        st.button("Goto Interview page", key='button6', on_click=initpage)
+        st.button("End the game", key='button6', on_click=initpage)
