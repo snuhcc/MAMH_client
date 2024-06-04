@@ -66,13 +66,18 @@ def initiation():
         st.session_state.tmp_conts = 0
     if "player_names" not in st.session_state:
         st.session_state.player_names = []
+    if "round_num" not in st.session_state:
+        st.session_state.round_num = 0
+
 
 
 if __name__ == '__main__':
     initiation()
     game_name = "PublicGoods"
     curClient = select_client(game_name)
-    dc = curClient(placeholder)
+    fc = placeholder.container()
+    lc = placeholder.container()
+    dc = curClient(fc, lc)
 
     if st.session_state.page == 0:
         dc.main_page(HOST, PORT)

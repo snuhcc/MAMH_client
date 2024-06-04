@@ -18,6 +18,7 @@ def sending_mail(player_msgs, time):
     for pidx, msg in player_msgs.items():
         pname = st.session_state.player_names[pidx]
         if msg != "" and msg is not None:
+            msg = msg.replace(":", "")
             sending += f"{pname}@{msg}\n\n" 
     st.session_state.server_socket.send(f'{time}\n\n{sending}END'.encode())
     st.session_state.client_log[st.session_state.turn] += f"{time} Send \n\n"
@@ -25,7 +26,7 @@ def sending_mail(player_msgs, time):
     for sends in sending.replace('@', ': ').split('\n\n'):
         if ':' in sends:
             name, msg = sends.split(':')
-            emoji = "🌞" if time == 'day' else "🌒"
+            emoji = "답장" if time == 'day' else "제안"
             st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)({st.session_state.turn}-{emoji}) {msg}\n\n"
     st.session_state.client_log[st.session_state.turn] += "\n\n --- \n\n"
     st.session_state.session_control = False
@@ -55,7 +56,7 @@ def write_team_chat_container(con, team, names, disabled, time):
         eds += write_chat_container(cb2c, names[5], disabled[5], 5, time)
         eds += write_chat_container(cb4c, names[7], disabled[7], 7, time)
     fc.markdown(f"<h3 style='text-align: center; color:{team};'>{team.capitalize()} Team </h3>", unsafe_allow_html=True)
-    fc.markdown(f"<p style='text-align: center; '>Total Endowment 💰 {eds}</h1>", unsafe_allow_html=True)
+    fc.markdown(f"<p style='text-align: center; '>팀 자금 총합 💰 {eds}</h1>", unsafe_allow_html=True)
     
 
 def write_chat_container(con, cname, disabled, n, time):
@@ -79,7 +80,8 @@ def write_chat_container(con, cname, disabled, n, time):
     else:
         if int(endowment) <= 0:
             with ncon.chat_message('user', avatar=f'person_images/{iname}.png'):
-                st.write(f"{cname} (❌ eliminated.)")
+                # st.write(f"{cname} (❌ eliminated.)")
+                st.write(f"플레이어 {cname} 탈락.")
         else:
             with ncon.chat_message('user', avatar=f'person_images/{iname}.png'):
                 st.write(f"{cname} (💰: {endowment})")
@@ -99,7 +101,8 @@ def write_chat_container(con, cname, disabled, n, time):
             if submitted:
                 st.session_state.tmp_submitted[cname] = True
             if st.session_state.tmp_submitted[cname]:
-                st.write("Successfully Editted.")
+                # st.write("Successfully Editted.")
+                st.write("메시지 작성 완료")
     return int(endowment) if int(endowment) >= 0 else 0
 
 def write_graph(vis_turn):
@@ -117,16 +120,20 @@ def write_graph(vis_turn):
             continue
         
 
-    st.write("### Graph")
-    gselect = st.selectbox("Graph to shown", ["contribution", "endowment"])
-    if gselect == 'contribution':
+    st.write("### 그래프")
+    # gselect = st.selectbox("Graph to shown", ["contribution", "endowment"])
+    gselect = st.selectbox("입찰 금액 / 자금 그래프 선택", ["플레이어 입찰 금액", "플레이어 자금"])
+    # if gselect == 'contribution':
+    if gselect == '플레이어 입찰 금액':
         st.line_chart(contribution_df.set_index('turn'))
-    elif gselect == 'endowment':
+    # elif gselect == 'endowment':
+    elif gselect == '플레이어 자금':
         st.line_chart(endowment_df.set_index('turn'))
 
 
 def write_public_messages(vis_turn):
-    st.write(f"### Public Messages at Turn {vis_turn}")
+    # st.write(f"### Public Messages at Turn {vis_turn}")
+    st.write(f"### 라운드 {vis_turn}에 작성된 전체 메시지")
     pmsg_con = st.container(border=True, height=500)
     for msgstr in st.session_state.public_messages:
         if ':' in msgstr:
@@ -145,9 +152,9 @@ def write_public_messages(vis_turn):
                 st.markdown(msg)
 
 class PublicGoodsClient(DefaultClient):
-    def __init__(self, placeholder):
+    def __init__(self, fc, placeholder):
 
-        super().__init__(placeholder)
+        super().__init__(fc, placeholder)
         pass
 
     def button2(self, **kwargs):
@@ -178,28 +185,34 @@ class PublicGoodsClient(DefaultClient):
 
     ### page implementations
     def main_page(self, HOST, PORT):
-        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+        with self.placeholder.container():
+            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game</h1>", unsafe_allow_html=True)
 
         _, cp, _ = self.placeholder.columns([1,2,1])
         with cp.container():
-            st.markdown("### 🎮 Welcome to the New Game!")
+            # st.markdown("### 🎮 Welcome to the New Game!")
+            st.markdown("### 🎮 새로운 게임에 오신 것을 환영합니다!")
 
-            st.write("Type your information and connect to your server!")
+            # st.write("Type your information and connect to your server!")
+            st.write("정보를 입력하시면 서버에 연결해드리겠습니다!")
             HOST = st.text_input('🌐 IP Address', value='13.125.250.236')
             PORT = st.text_input('🌐 PORT', value=20912)
-            username = st.text_input('📛 Your Name', '')
-            st.write("You will receive a new nickname when the game starts.")
+            # username = st.text_input('📛 Your Name', '')
+            username = st.text_input('📛 성함', '')
+            # st.write("You will receive a new nickname when the game starts.")
+            st.write("게임이 시작하면 새로운 캐릭터를 임의로 정해드릴게요!")
             # persona = st.text_area('Persona', '')
             user_info = {
                 "username": username
             }
-            st.button("🔗 Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
+            st.button("🔗 접속", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
 
     def turn_page(self):
-        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+        fc = self.placeholder.container()
 
         with self.placeholder:
-            with st.spinner("⌛ Please wait until the server starts the turn."):
+            # with st.spinner("⌛ Please wait until the server starts the turn."):
+            with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요."):
                 if not st.session_state.session_control:
                     data = ""
                     data_list = []
@@ -235,24 +248,41 @@ class PublicGoodsClient(DefaultClient):
                         for reply in all_replys.split('\n\n'):
                             if ':' in reply:
                                 name, msg = reply.split(':')
-                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)({st.session_state.turn}-🌞) {msg}\n\n"
+                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)({st.session_state.turn}-답장) {msg}\n\n"
         # start turn
+        with fc:
+            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
+
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         with cp.container():
             data_list = st.session_state.player_data
             if data_list[-3] not in [str(i) for i in range(8)]:
-                st.markdown(f"### Turn {st.session_state.turn} / {data_list[-2]} Bidding.")
+                turn = data_list[-2]
+                st.session_state.round_num = turn
+                # st.markdown(f"### Turn {st.session_state.turn} / {turn} Bidding.")
+                st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
             else:
-                st.markdown(f"### Turn {st.session_state.turn} / {data_list[-3]} Bidding.")
-            st.markdown(f"👤 **You are {st.session_state.name}.**")
-            on = st.toggle(f"Click to see Round Rule.")
+                turn = data_list[-3]
+                st.session_state.round_num = turn
+                # st.markdown(f"### Turn {st.session_state.turn} / {turn} Bidding.")
+                st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
+            # st.markdown(f"👤 **You are {st.session_state.name}.**")
+            st.markdown(f"👤 **당신의 캐릭터는 {st.session_state.name}입니다.**")
+            # on = st.toggle(f"Click to see Round Rule.")
+            on = st.toggle(f"클릭하여 라운드 규칙을 확인해보세요!")
             if on:
-                st.markdown(f"  -   You need to pay {data_list[2]} fare.")
-                st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
-                st.markdown(f"  -   If project success, you will receive an amount distributed according to the number of people, twice the total.")
-                st.markdown(f"  -   If project fail, you get nothing.")
-                st.markdown(f"  -   For example, if all people bid at least {int(data_list[2]) // 2}, you can deserve all {data_list[2]} fare.")
-                st.markdown("   -   Contribute smart to survive 8 rounds!")
+                # st.markdown(f"  -   You need to pay {data_list[2]} fare.")
+                # st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
+                # st.markdown(f"  -   If project success, you will receive an amount distributed according to the number of people, twice the total.")
+                # st.markdown(f"  -   If project fail, you get nothing.")
+                # st.markdown(f"  -   For example, if all people bid at least {int(data_list[2]) // 2}, you can deserve all {data_list[2]} fare.")
+                # st.markdown(f"   -  Contribute smart to survive {turn} rounds!")
+                st.markdown(f"  -   매 라운드마다 {data_list[2]}원이 참가비로 자동 차감됩니다.")
+                st.markdown(f"  -   팀과 상관없이 전원 입찰 금액의 합이 {data_list[3]}원을 넘으면 목표 금액 달성 성공!")
+                st.markdown(f"  -   목표 금액을 달성한 경우, 목표 금액의 두배 해당하는 금액을 현재 게임 참가자 수만큼 나누어 배분합니다.")
+                st.markdown(f"  -   목표 금액을 달성하지 못하는 경우, 투자했던 입찰 금액을 잃게 됩니다.")
+                st.markdown(f"  -   예를 들어, 모든 플레이어가 적어도 {int(data_list[2]) // 2}를 입찰하는 경우, {data_list[2]}원의 참가비를 되돌려 받습니다.")
+                st.markdown(f"  -   총 {turn} 라운드를 생존해야 하니 신중하게 입찰해주세요!")
 
             if st.session_state.turn != 1:
                 ## graph
@@ -263,10 +293,12 @@ class PublicGoodsClient(DefaultClient):
 
             ## first turn show team info
             else:
-                st.markdown(f"#### **Your status**")
+                # st.markdown(f"#### **Your status**")
+                st.markdown(f"#### **나의 캐릭터**")
                 col1, col2 = st.columns(2)
                 col1.image(f'person_images/{st.session_state.name}.png')
-                col2.write(f"**Name**       : {data_list[0]}")
+                # col2.write(f"**Name**       : {data_list[0]}")
+                col2.write(f"**이름**       : {data_list[0]}")
                 #col2.write(f"**Endowment**  : {data_list[1]}")
 
                 other_players_info = data_list[4].split('   ')[:-1]
@@ -274,7 +306,8 @@ class PublicGoodsClient(DefaultClient):
                 if 'tmp_chat_new_msg' not in st.session_state:
                     st.session_state.tmp_chat_new_msg = defaultdict(str)
                 if st.session_state.name[0] < 'E':
-                    st.markdown(f"### :blue[Blue Team] (YOURS)")
+                    # st.markdown(f"### :blue[Blue Team] (YOURS)")
+                    st.markdown(f"### :blue[Blue Team] (나의 팀)")
                 else:
                     st.markdown(f"### :blue[Blue Team]")
                 bcols = st.columns(team_player_num) # TODO: make dynamic
@@ -291,7 +324,8 @@ class PublicGoodsClient(DefaultClient):
                     #col.write(f"**Endowment :** {c_endowment}")
                 
                 if st.session_state.name[0] > 'D':
-                    st.markdown(f"### :red[Red Team] (YOURS)")
+                    # st.markdown(f"### :red[Red Team] (YOURS)")
+                    st.markdown(f"### :red[Red Team] (나의 팀)")
                 else:
                     st.markdown(f"### :red[Red Team]")
                 rcols = st.columns(team_player_num) # TODO: make dynamic
@@ -319,18 +353,25 @@ class PublicGoodsClient(DefaultClient):
 
             
         
-            st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
+            # st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
+            st.markdown(f"### **라운드 {st.session_state.turn}의 입찰 금액**")
             with st.form(key='bid', border=False):
-                cur_bid = st.number_input("💰 Contribution", min_value=0, max_value=int(data_list[1]), key='bid')
-                submitted = st.form_submit_button("Submit")
-            st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={"cur_bid":cur_bid}, disabled=not submitted)
+                # cur_bid = st.number_input("💰 Contribution", min_value=0, max_value=int(data_list[1]), key='bid')
+                cur_bid = st.number_input("💰 입찰 금액", min_value=0, max_value=int(data_list[1]), key='bid')
+                # submitted = st.form_submit_button("Submit")
+                submitted = st.form_submit_button("금액 확인")
+            # st.button("🛠️ Bet", key='button2', on_click=self.button2, kwargs={"cur_bid":cur_bid}, disabled=not submitted)
+            st.button("🛠️ 입찰하기", key='button2', on_click=self.button2, kwargs={"cur_bid":cur_bid}, disabled=not submitted)
+
 
 
     def turn_waiting_page(self):
-        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+        with self.placeholder.container():
+            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
 
         with self.placeholder:
-            with st.spinner("⌛ Waiting for other players to finish betting..."):
+            # with st.spinner("⌛ Waiting for other players to finish betting..."):
+            with st.spinner("⌛ 다른 플레이어들이 입찰을 마무리하기까지 기다리는 중..."):
                 if not st.session_state.session_control:
                     data = ""
                     while 'end_turn' not in data:
@@ -375,10 +416,12 @@ class PublicGoodsClient(DefaultClient):
         with cp:
 
             col1, col2, col3 = st.columns([1,2,1])
-            st.markdown(f"### Turn {st.session_state.turn} Ended.")
+            # st.markdown(f"### Turn {st.session_state.turn} Ended.")
+            st.markdown(f"### 라운드 {st.session_state.turn} 종료.")
             st.markdown(f"### :red[🏦 {data_list[1]}]")
             
-            st.markdown("#### **Contribution**")
+            # st.markdown("#### **Contribution**")
+            st.markdown("#### **총 입찰 금액**")
             # col1, col2 = st.columns(2)
             
             
@@ -443,7 +486,8 @@ class PublicGoodsClient(DefaultClient):
             if not st.session_state.table_updated:
                 st.session_state.tmp_conts = total_conts*2//8 if "succeed" in data_list[1] else 0
             st.session_state.table_updated = True
-            st.markdown("#### **Total Endowment change**")
+            # st.markdown("#### **Total Endowment change**")
+            st.markdown("#### **나의 자금 변화**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
                 st.write(f"{st.session_state.endowment_table[st.session_state.name][-2]} ▶️ {st.session_state.endowment_table[st.session_state.name][-1]} (➕ {st.session_state.endowment_table[st.session_state.name][-1] - st.session_state.endowment_table[st.session_state.name][-2]})")
@@ -473,30 +517,47 @@ class PublicGoodsClient(DefaultClient):
                 st.write('\n\n'.join(data_list[4].split('\n')))
 
                 if cur_ed <= 0:
-                    st.write("❌ You have been eliminated.")
+                    # st.write("❌ You have been eliminated.")
+                    st.write("❌ 당신은 게임에서 탈락했습니다.")
                     onclick = endpage
                     public_message = ""
+            
+            if st.session_state.turn == st.session_state.round_num:
+                st.write("모든 라운드가 종료되었습니다.")
+                onclick = endpage
+                st.session_state.server_socket.send('received'.encode())
+                public_message = ""
 
             if onclick != endpage:
-                st.write("### Write Public Message")
-                on = st.toggle(f"Click to see Message Rule.")
+                # st.write("### Write Public Message")
+                st.write("### 전체 메시지를 작성해주세요")
+                # on = st.toggle(f"Click to see Message Rule.")
+                on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
                 if on:
-                    st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
-                    st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-                    st.write("  -   Also, please do not use double enter in your message.")
+                    # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
+                    # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                    # st.write("  -   Also, please do not use double enter in your message.")
+                    st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
+                    st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
+                    st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
                 with st.form(key='pmsg', border=False):
-                    public_message = st.text_area(label="📧 Public Message", key='publics')
-                    submitted = st.form_submit_button("Submit")
-                st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message}, disabled=not submitted)
+                    public_message = st.text_area(label="📧 전체 메시지", key='publics')
+                    # submitted = st.form_submit_button("Submit")
+                    submitted = st.form_submit_button("메시지 작성 완료")
+                # st.button("➡️ End Turn", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message}, disabled=not submitted)
+                st.button("➡️ 다음 라운드로 넘어가기", key='button3', on_click=onclick, kwargs={"checkbox": st.session_state.checkboxs, "public_message": public_message}, disabled=not submitted)
             else:
-                st.button("➡️ End Turn", key='button3', on_click=onclick)
+                # st.button("➡️ End Turn", key='button3', on_click=onclick)
+                st.button("➡️ 게임 종료", key='button3', on_click=onclick)
+
 
 
     def turn_end_page(self):
-        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
-
+        with self.placeholder.container():
+            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
         with self.placeholder:
-            with st.spinner("⌛ Waiting for other players to finish checking results..."):
+            # with st.spinner("⌛ Waiting for other players to finish checking results..."):
+            with st.spinner("⌛ 다른 플레이어들이 결과를 확인하기까지 기다리는 중......"):
                 if not st.session_state.session_control:
                     data = ""
                     while 'end_game' not in data and 'start_turn' not in data:
@@ -512,14 +573,18 @@ class PublicGoodsClient(DefaultClient):
                         st.session_state.session_control = True
                         onclick = self.button4(msgpage)
         with self.placeholder.container():
-            st.write("🌒 Goto Next Turn Night...")
-            st.button("➡️ Next", key='button4', on_click=onclick)
+            # st.write("🌒 Goto Next Turn Night...")
+            st.write("이제부터 1대1로 개인 메시지를 작성해주세요")
+            # st.button("➡️ Next", key='button4', on_click=onclick)
+            st.button("➡️ 개인 메시지 세션으로 넘어가기", key='button4', on_click=onclick)
 
     def night_msg_page(self):
-        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+        with self.placeholder.container():
+            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
 
         with self.placeholder:
-            with st.spinner("🌒 Waiting for the server to start night..."):
+            # with st.spinner("🌒 Waiting for the server to start night..."):
+            with st.spinner("서버에서 개인 메시지 세션을 시작하기까지 기다리는 중..."):
                 if not st.session_state.session_control:
                     data = ""
                     while 'STP' not in data:
@@ -564,7 +629,8 @@ class PublicGoodsClient(DefaultClient):
 
         with cp.container():
 
-            st.markdown(f"### 🌒 **Turn {st.session_state.turn} Night Mailbox**")
+            # st.markdown(f"### 🌒 **Turn {st.session_state.turn} Night Mailbox**")
+            st.markdown(f"### **라운드 {st.session_state.turn} 개인 메시지 세션**")
 
             ## graph
             write_graph(st.session_state.turn)
@@ -573,22 +639,34 @@ class PublicGoodsClient(DefaultClient):
             write_public_messages(st.session_state.turn)
 
                     
-            st.write("### Write secret message")
-            on = st.toggle(f"Click to see Message Rule.")
+            # st.write("### Write secret message")
+            st.write("### 개인 메시지를 작성해주세요")
+            # on = st.toggle(f"Click to see Message Rule.")
+            on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
             if on:
-                st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
-                st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-                st.write("  -   Also, please do not use double enter in your message.")
+                # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+                # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                # st.write("  -   Also, please do not use double enter in your message.")
+                st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
+                st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
+                st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
             
-            st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
+            # st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
+            st.write("**메시지 작성을 완료한 경우, 체크박스를 클릭한 후, 전송 버튼을 눌러주세요.**")
         
-            checked = st.checkbox('Done!', key = f'ch')
-            st.button('📤 Send', on_click=sending_mail, kwargs={'time':'night','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked)
+            # checked = st.checkbox('Done!', key = f'ch')
+            checked = st.checkbox('메시지 작성 완료!', key = f'ch')
+            # st.button('📤 Send', on_click=sending_mail, kwargs={'time':'night','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked)
+            st.button('📤 메시지 전송', on_click=sending_mail, kwargs={'time':'night','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked)
+
     
     def day_msg_page(self):
-        self.placeholder.markdown(f"<h1 style='text-align: center; '>Public Good Game</h1>", unsafe_allow_html=True)
+        with self.placeholder.container():
+            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
+
         with self.placeholder:
-            with st.spinner("🌞 Waiting for the server to start day..."):
+            # with st.spinner("🌞 Waiting for the server to start day..."):
+            with st.spinner("서버에서 답장 세션을 시작하기까지 기다리는 중..."):
                 if not st.session_state.session_control:
                     data = ""
                     while 'RPYS' not in data:
@@ -615,7 +693,7 @@ class PublicGoodsClient(DefaultClient):
                     for data_log in data_list:
                         if ':' in data_log:
                             name, msg = data_log.split(':')
-                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)({st.session_state.turn}-🌒){msg}\n\n"
+                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)({st.session_state.turn}-제안){msg}\n\n"
                     for d in st.session_state.rdatas:
                         if d == "" or d == "END":
                             continue
@@ -633,7 +711,8 @@ class PublicGoodsClient(DefaultClient):
 
         with cp.container():
             
-            st.markdown(f"### 🌞 **Turn {st.session_state.turn} Day Mailbox**")
+            # st.markdown(f"### 🌞 **Turn {st.session_state.turn} Day Mailbox**")
+            st.markdown(f"### **라운드 {st.session_state.turn} 답장 세션**")
 
             ## graph
             write_graph(st.session_state.turn)
@@ -641,9 +720,11 @@ class PublicGoodsClient(DefaultClient):
             ## public messages
             write_public_messages(st.session_state.turn)
 
-            st.write("### Write replys")
+            # st.write("### Write replys")
+            st.write("### 개인 메시지에 답장을 보내주세요!")
             if st.session_state.rdatas[0] != "":
-                st.write("📩 You've got messages from:")
+                # st.write("📩 You've got messages from:")
+                st.write("📩 다음 플레이어에게서 개인 메시지를 받았습니다:")
                 cols = st.columns(len(st.session_state.rnames))
                 for i, col in enumerate(cols):
                     cname = st.session_state.rnames[i]
@@ -651,24 +732,37 @@ class PublicGoodsClient(DefaultClient):
                         cname = cname.split(' (bot)')[0]
                     col.write(st.session_state.rnames[i])
                     col.image(f'person_images/{cname}.png', width=100)
-                on = st.toggle(f"Click to see Message Rule.")
+                # on = st.toggle(f"Click to see Message Rule.")
+                on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
                 if on:
-                    st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
-                    st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-                    st.write("  -   Also, please do not use double enter in your message.")
+                    # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+                    # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                    # st.write("  -   Also, please do not use double enter in your message.")
+                    st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
+                    st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
+                    st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
             else:
-                st.write("❌ You've got no messages.")
-                st.write("Just press Send button.")
+                # st.write("❌ You've got no messages.")
+                st.write("❌ 받은 메시지가 없습니다.")
+                # st.write("Just press Send button.")
+                st.write("이 경우에도 메시지 전송 버튼을 눌러주세요.")
+
             
-            st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
+            # st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
+            st.write("**메시지 작성을 완료한 경우, 체크박스를 클릭한 후, 전송 버튼을 눌러주세요.**")
             
-            checked2 = st.checkbox('Done!', key = f'ch2')
-            st.button('📤 Send', key='daysend', on_click=sending_mail, kwargs={'time': 'day','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked2)
+            # checked2 = st.checkbox('Done!', key = f'ch2')
+            checked2 = st.checkbox('메시지 작성 완료!', key = f'ch2')
+            # st.button('📤 Send', key='daysend', on_click=sending_mail, kwargs={'time': 'day','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked2)
+            st.button('📤 메시지 전송', key='daysend', on_click=sending_mail, kwargs={'time': 'day','player_msgs': st.session_state.tmp_chat_new_msg}, disabled = not checked2)
 
 
     def game_end_page(self):
-        st.write("🎯 The game ends.")
-        st.write("Thank you for participate!")
+        # st.write("🎯 The game ends.")
+        st.write("🎯 게임이 종료되었습니다.")
+        # st.write("Thank you for participate!")
+        st.write("참여해주셔서 감사합니다!")
         
-
-        st.button("End the game", key='button6', on_click=initpage)
+        st.session_state.server_socket.send('received'.encode())
+        # st.button("End the game", key='button6', on_click=initpage)
+        st.button("게임 종료", key='button6', on_click=initpage)

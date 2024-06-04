@@ -35,7 +35,8 @@ def button1(HOST, PORT, user_info):
         st.warning('player name duplicated.')
 
 class DefaultClient:
-    def __init__(self, placeholder):
+    def __init__(self, fc, placeholder):
+        self.fc = fc
         self.placeholder = placeholder
         pass
 
