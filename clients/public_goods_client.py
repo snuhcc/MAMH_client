@@ -250,22 +250,21 @@ class PublicGoodsClient(DefaultClient):
                                 name, msg = reply.split(':')
                                 st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)({st.session_state.turn}-답장) {msg}\n\n"
         # start turn
+        data_list = st.session_state.player_data
+        if data_list[-3] not in [str(i) for i in range(8)]:
+            turn = data_list[-2]
+            st.session_state.round_num = turn
+        else:
+            turn = data_list[-3]
+            st.session_state.round_num = turn
+
         with fc:
             st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
 
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         with cp.container():
-            data_list = st.session_state.player_data
-            if data_list[-3] not in [str(i) for i in range(8)]:
-                turn = data_list[-2]
-                st.session_state.round_num = turn
-                # st.markdown(f"### Turn {st.session_state.turn} / {turn} Bidding.")
-                st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
-            else:
-                turn = data_list[-3]
-                st.session_state.round_num = turn
-                # st.markdown(f"### Turn {st.session_state.turn} / {turn} Bidding.")
-                st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
+            # st.markdown(f"### Turn {st.session_state.turn} / {turn} Bidding.")
+            st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
             # st.markdown(f"👤 **You are {st.session_state.name}.**")
             st.markdown(f"👤 **당신의 캐릭터는 {st.session_state.name}입니다.**")
             # on = st.toggle(f"Click to see Round Rule.")
