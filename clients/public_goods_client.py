@@ -533,7 +533,7 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.table_updated = True
             # st.markdown("#### **Total Endowment change**")
             st.markdown("#### **총 입찰 금액**")
-            st.markdown(f"{total_conts}")
+            st.markdown(f"{st.session_state.tmp_conts*8//2}")
             st.markdown("#### **나의 자금 변화**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
