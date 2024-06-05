@@ -396,7 +396,8 @@ class PublicGoodsClient(DefaultClient):
             write_team_chat_container(rp, 'red', st.session_state.player_names, disabled, "turn")
 
             
-            st.markdown(f"#### **라운드 입찰 목표 금액: {data_list[3]}**")
+            st.markdown(f"#### **라운드 입찰 목표 금액 (8명 입찰액 합)**")
+            st.markdown(f"**{data_list[3]}**")
             # st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
             st.markdown(f"### **라운드 {st.session_state.turn}의 입찰 금액**")
             with st.form(key='bid', border=False):
