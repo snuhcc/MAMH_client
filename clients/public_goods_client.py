@@ -542,7 +542,7 @@ class PublicGoodsClient(DefaultClient):
             
             
             ## graph
-            write_graph(st.session_state.turn+1)
+            write_graph(cp, st.session_state.turn+1)
 
             ## public messages
             if st.session_state.turn > 1:
