@@ -320,9 +320,11 @@ class PublicGoodsClient(DefaultClient):
                 # st.markdown(f"   -  Contribute smart to survive {turn} rounds!")
                 st.markdown(f"  -   매 라운드마다 {data_list[2]}원이 참가비로 자동 차감됩니다.")
                 st.markdown(f"  -   팀과 상관없이 전원 입찰 금액의 합이 {data_list[3]}원을 넘으면 목표 금액 달성 성공!")
-                st.markdown(f"  -   목표 금액을 달성한 경우, 목표 금액의 두배 해당하는 금액을 현재 게임 참가자 수만큼 나누어 배분합니다.")
+                st.markdown(f"  -   목표 금액을 달성한 경우, 입찰 금액 합을 두 배로 하여 현재 게임 참가자 수만큼 나누어 배분합니다.")
                 st.markdown(f"  -   목표 금액을 달성하지 못하는 경우, 투자했던 입찰 금액을 잃게 됩니다.")
-                st.markdown(f"  -   예를 들어, 모든 플레이어가 적어도 {int(data_list[2]) // 2}를 입찰하는 경우, {data_list[2]}원의 참가비를 되돌려 받습니다.")
+                st.markdown(f"  -   예를 들어, 모든 플레이어가 적어도 {data_list[2]}를 입찰하는 경우, {int(data_list[2]) * 2} 만큼을 돌려 받기에 {data_list[2]}원의 참가비를 낼 수 있게 됩니다.")
+                st.markdown(f"  -   물론 한 명이라도 이보다 적게 낸다면 균형은 깨지고, 생존이 어려워질 것입니다.")
+                st.markdown(f"  -   튜토리얼에서 보셨듯이, 처음부터 상대팀을 탈락시킨다면 여러분은 마지막 라운드까지의 참가비를 낼 수 없어 아무도 승리하지 못할 것입니다.")
                 st.markdown(f"  -   총 {turn} 라운드를 생존해야 하니 신중하게 입찰해주세요!")
 
             if st.session_state.turn != 1:
