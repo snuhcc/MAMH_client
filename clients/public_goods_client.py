@@ -70,6 +70,7 @@ def get_msg_from_server(splitter):
                 data = buf.decode('utf-8')
             except:
                 continue
+            print("med" + data)
             if splitter in data:
                 if 'END' in data:
                     data = splitter + data.split(splitter)[1].split('END')[0]
@@ -481,7 +482,6 @@ class PublicGoodsClient(DefaultClient):
         # Blue team
         names = st.session_state.player_names
         disabled = [True for i in range(len(names))]
-        print(names)
         write_team_chat_container(bp, 'blue', names, disabled, "turnend")
         write_team_chat_container(rp, 'red', names, disabled, "turnend")
         with cp:
@@ -660,6 +660,7 @@ class PublicGoodsClient(DefaultClient):
             with st.spinner("서버에서 개인 메시지 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
                     data = get_msg_from_server('STP')
+                    print(data)
                     public_messages = data.split('STP')[-1].split('\n\n')
                     st.session_state.public_messages = public_messages
                     st.session_state.server_socket.send('received'.encode())
