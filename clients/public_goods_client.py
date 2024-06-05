@@ -78,6 +78,7 @@ def write_chat_container(con, cname, disabled, n, time):
     if cname == st.session_state.name:
         with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
             st.write(f"{cname} (💰: {endowment})")
+        concon.write("Your character")
         concon.image(f'person_images/{st.session_state.name}.png')
         #concon.write(f"endowment: {endowment}")
     else:
