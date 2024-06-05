@@ -29,7 +29,7 @@ def sending_mail(player_msgs, time):
         if ':' in sends:
             name, msg = sends.split(':')
             emoji = "답장" if time == 'day' else "제안"
-            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)({st.session_state.turn}-{emoji}) {msg}\n\n"
+            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)**{st.session_state.turn}-{emoji}** {msg}\n\n"
     st.session_state.client_log[st.session_state.turn] += "\n\n --- \n\n"
     st.session_state.session_control = False
     st.session_state.tmp_submitted = {k:False for k in st.session_state.tmp_submitted.keys()}
@@ -78,6 +78,7 @@ def write_chat_container(con, cname, disabled, n, time):
     if cname == st.session_state.name:
         with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
             st.write(f"{cname} (💰: {endowment})")
+        concon.image(f'person_images/{st.session_state.name}.png')
         #concon.write(f"endowment: {endowment}")
     else:
         if int(endowment) <= 0:
@@ -291,7 +292,7 @@ class PublicGoodsClient(DefaultClient):
                         for reply in all_replys.split('\n\n'):
                             if ':' in reply:
                                 name, msg = reply.split(':')
-                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)({st.session_state.turn}-답장) {msg}\n\n"
+                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**{st.session_state.turn}-답장** {msg}\n\n"
         # start turn
         data_list = st.session_state.player_data
         if data_list[-3] not in [str(i) for i in range(8)]:
@@ -748,7 +749,7 @@ class PublicGoodsClient(DefaultClient):
                     for data_log in data_list:
                         if ':' in data_log:
                             name, msg = data_log.split(':')
-                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)({st.session_state.turn}-제안){msg}\n\n"
+                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)**{st.session_state.turn}-제안**{msg}\n\n"
                     for d in st.session_state.rdatas:
                         if d == "" or d == "END":
                             continue
