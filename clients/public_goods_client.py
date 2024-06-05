@@ -617,11 +617,12 @@ class PublicGoodsClient(DefaultClient):
                             buf += st.session_state.server_socket.recv(1024)
                         data = buf[:-3].decode('utf-8')
                     data_list = data.split('\n\n')
-                    if data_list[0] == 'end_game':
+                    print(data_list)
+                    if 'end_game' in data_list[0]:
                         st.session_state.server_socket.send('received'.encode())
                         st.session_state.session_control = True
                         onclick = self.button4(nextpage)
-                    elif data_list[0] == 'start_turn':
+                    elif 'start_turn' in data_list[0]:
                         st.session_state.server_socket.send('received'.encode())
                         st.session_state.turn += 1
                         st.session_state.session_control = True
