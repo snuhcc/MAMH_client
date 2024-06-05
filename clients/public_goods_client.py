@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import copy
+import plotly.graph_objs as go
+
 
 def initpage():
     st.session_state.page = 0
@@ -109,31 +111,71 @@ def write_graph(vis_turn):
     while True:
         try:
             contribution_df = pd.DataFrame(st.session_state.contribution_table)
-            contribution_df.columns = [name[0] for name in contribution_df.columns]
             contribution_df['turn'] = list(range(0, vis_turn))
             endowment_df = pd.DataFrame(st.session_state.endowment_table)
-            endowment_df.columns = [name[0] for name in endowment_df.columns]
             endowment_df['turn'] = list(range(0, vis_turn))
             break
         except Exception as e:
-            #print(e)
             continue
-        
 
-    st.write("### 그래프")
-    # gselect = st.selectbox("Graph to shown", ["contribution", "endowment"])
     gselect = st.selectbox("입찰 금액 / 자금 그래프 선택", ["플레이어 입찰 금액", "플레이어 자금"])
-    # if gselect == 'contribution':
+    
+    # Define colors for teams
+    red_team_colors = ['#FF0000', '#FF4D4D', '#FF6666', '#FF9999']
+    blue_team_colors = ['#0000FF', '#4D4DFF', '#6666FF', '#9999FF']
+    team_colors = red_team_colors + blue_team_colors
+    
     if gselect == '플레이어 입찰 금액':
-        st.line_chart(contribution_df.set_index('turn'))
-    # elif gselect == 'endowment':
+        fig = go.Figure()
+        for idx, col in enumerate(contribution_df.columns[:-1]):  # Exclude the 'turn' column
+            fig.add_trace(go.Scatter(
+                x=contribution_df['turn'],
+                y=contribution_df[col],
+                mode='lines',
+                name=col,
+                line=dict(width=2, color=team_colors[idx]),  # Set line width and color
+                hoverinfo='x+y+name',
+            ))
+        fig.update_layout(
+            title='플레이어 입찰 금액',
+            xaxis_title='라운드',
+            yaxis_title='금액',
+            hovermode='x unified',  # Highlight entire line on hover
+            xaxis=dict(
+                tickmode='linear',
+                tick0=0,
+                dtick=1  # Display integers only
+            ),
+        )
+        st.plotly_chart(fig)
+    
     elif gselect == '플레이어 자금':
-        st.line_chart(endowment_df.set_index('turn'))
-
+        fig = go.Figure()
+        for idx, col in enumerate(endowment_df.columns[:-1]):  # Exclude the 'turn' column
+            fig.add_trace(go.Scatter(
+                x=endowment_df['turn'],
+                y=endowment_df[col],
+                mode='lines',
+                name=col,
+                line=dict(width=2, color=team_colors[idx]),  # Set line width and color
+                hoverinfo='x+y+name',
+            ))
+        fig.update_layout(
+            title='플레이어 자금',
+            xaxis_title='라운드',
+            yaxis_title='금액',
+            hovermode='x unified',  # Highlight entire line on hover
+            xaxis=dict(
+                tickmode='linear',
+                tick0=0,
+                dtick=1  # Display integers only
+            ),
+        )
+        st.plotly_chart(fig)
 
 def write_public_messages(vis_turn):
     # st.write(f"### Public Messages at Turn {vis_turn}")
-    st.write(f"### 라운드 {vis_turn}에 작성된 전체 메시지")
+    st.write(f"### 이전 라운드 전체 메시지")
     pmsg_con = st.container(border=True, height=500)
     for msgstr in st.session_state.public_messages:
         if ':' in msgstr:
@@ -629,7 +671,7 @@ class PublicGoodsClient(DefaultClient):
         with cp.container():
 
             # st.markdown(f"### 🌒 **Turn {st.session_state.turn} Night Mailbox**")
-            st.markdown(f"### **라운드 {st.session_state.turn} 개인 메시지 세션**")
+            st.markdown(f"### **개인 메시지 세션**")
 
             ## graph
             write_graph(st.session_state.turn)
