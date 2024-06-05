@@ -78,7 +78,7 @@ def write_chat_container(con, cname, disabled, n, time):
     if cname == st.session_state.name:
         with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
             st.write(f"{cname} (💰: {endowment})")
-        concon.write("## Your character")
+        concon.write("### Your character")
         concon.image(f'person_images/{st.session_state.name}.png')
         #concon.write(f"endowment: {endowment}")
     else:
@@ -398,7 +398,6 @@ class PublicGoodsClient(DefaultClient):
             write_team_chat_container(rp, 'red', st.session_state.player_names, disabled, "turn")
 
             
-            st.markdown(f"### **라운드 입찰 목표 금액**")
             st.markdown(f"#### 8명 입찰액 목표 합: **{data_list[3]}**")
             # st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
             st.markdown(f"### **라운드 {st.session_state.turn}의 입찰 금액**")
@@ -538,7 +537,7 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.table_updated = True
             # st.markdown("#### **Total Endowment change**")
             st.markdown("#### **총 입찰 금액**")
-            st.markdown(f"{st.session_state.tmp_conts} / 2000")
+            st.markdown(f"입찰: {st.session_state.tmp_conts} / 목표: 2000")
             st.markdown("#### **나의 자금 변화**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
