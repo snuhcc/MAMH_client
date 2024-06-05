@@ -460,6 +460,10 @@ class PublicGoodsClient(DefaultClient):
         write_team_chat_container(rp, 'red', names, disabled, "turnend")
         with cp:
 
+            if not st.session_state.table_updated:
+                total_conts = 0
+
+
             col1, col2, col3 = st.columns([1,2,1])
             # st.markdown(f"### Turn {st.session_state.turn} Ended.")
             st.markdown(f"### 라운드 {st.session_state.turn} 종료.")
@@ -491,7 +495,6 @@ class PublicGoodsClient(DefaultClient):
                 bcols = st.columns(rctr)
                 st.write(":red[Red Team]")
                 rcols = st.columns(team_player_num-rctr)
-            total_conts = 0
             blue_ctr = 0
             red_ctr = 0
             for i, pinfo in enumerate(other_players_info):
@@ -533,7 +536,7 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.table_updated = True
             # st.markdown("#### **Total Endowment change**")
             st.markdown("#### **총 입찰 금액**")
-            st.markdown(f"{st.session_state.tmp_conts*8//2}")
+            st.markdown(f"{st.session_state.tmp_conts*8//2} / 2000")
             st.markdown("#### **나의 자금 변화**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
