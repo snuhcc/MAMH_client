@@ -609,15 +609,8 @@ class PublicGoodsClient(DefaultClient):
                         try:
                             data = buf.decode('utf-8')
                         except:
-                            while buf[-3:] != b'END':
-                                buf += st.session_state.server_socket.recv(1024)
-                            data = buf[:-3].decode('utf-8')
-                    if len(buf) == 1024:
-                        while buf[-3:] != b'END':
-                            buf += st.session_state.server_socket.recv(1024)
-                        data = buf[:-3].decode('utf-8')
+                            continue
                     data_list = data.split('\n\n')
-                    print(data_list)
                     if 'end_game' in data_list[0]:
                         st.session_state.server_socket.send('received'.encode())
                         st.session_state.session_control = True
