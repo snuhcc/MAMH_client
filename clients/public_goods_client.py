@@ -466,7 +466,7 @@ class PublicGoodsClient(DefaultClient):
             st.markdown(f"### :red[🏦 {data_list[1]}]")
             
             # st.markdown("#### **Contribution**")
-            st.markdown("#### **총 입찰 금액**")
+            
             # col1, col2 = st.columns(2)
             
             
@@ -532,6 +532,8 @@ class PublicGoodsClient(DefaultClient):
                 st.session_state.tmp_conts = total_conts*2//8 if "succeed" in data_list[1] else 0
             st.session_state.table_updated = True
             # st.markdown("#### **Total Endowment change**")
+            st.markdown("#### **총 입찰 금액**")
+            st.markdown(f"{total_conts}")
             st.markdown("#### **나의 자금 변화**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
