@@ -330,7 +330,7 @@ class PublicGoodsClient(DefaultClient):
 
             if st.session_state.turn != 1:
                 ## graph
-                write_graph(st.session_state.turn)
+                # write_graph(st.session_state.turn)
 
                 ## public messages
                 write_public_messages(st.session_state.turn-1)
@@ -549,7 +549,7 @@ class PublicGoodsClient(DefaultClient):
             
             
             ## graph
-            write_graph(st.session_state.turn+1)
+            #write_graph(st.session_state.turn+1)
 
             ## public messages
             if st.session_state.turn > 1:
@@ -687,7 +687,7 @@ class PublicGoodsClient(DefaultClient):
             st.markdown(f"### **개인 메시지 세션**")
 
             ## graph
-            write_graph(st.session_state.turn)
+            # write_graph(st.session_state.turn)
 
             ## public messages
             write_public_messages(st.session_state.turn)
@@ -769,7 +769,7 @@ class PublicGoodsClient(DefaultClient):
             st.markdown(f"### **라운드 {st.session_state.turn} 답장 세션**")
 
             ## graph
-            write_graph(st.session_state.turn)
+            # write_graph(st.session_state.turn)
 
             ## public messages
             write_public_messages(st.session_state.turn)
