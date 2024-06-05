@@ -133,7 +133,6 @@ def write_graph(vis_turn):
                 y=contribution_df[col],
                 mode='lines',
                 name=col,
-                autosize=True,
                 line=dict(width=2, color=team_colors[idx]),  # Set line width and color
                 hoverinfo='x+y+name',
             ))
