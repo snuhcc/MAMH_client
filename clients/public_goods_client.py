@@ -107,7 +107,7 @@ def write_chat_container(con, cname, disabled, n, time):
                 st.write("메시지 작성 완료")
     return int(endowment) if int(endowment) >= 0 else 0
 
-def write_graph(con, vis_turn):
+def write_graph(vis_turn):
     while True:
         try:
             contribution_df = pd.DataFrame(st.session_state.contribution_table)
@@ -147,7 +147,7 @@ def write_graph(con, vis_turn):
                 dtick=1  # Display integers only
             ),
         )
-        con.plotly_chart(fig)
+        st.plotly_chart(fig)
     
     elif gselect == '플레이어 자금':
         fig = go.Figure()
@@ -329,7 +329,7 @@ class PublicGoodsClient(DefaultClient):
 
             if st.session_state.turn != 1:
                 ## graph
-                write_graph(cp, st.session_state.turn)
+                write_graph(st.session_state.turn)
 
                 ## public messages
                 write_public_messages(st.session_state.turn-1)
@@ -542,7 +542,7 @@ class PublicGoodsClient(DefaultClient):
             
             
             ## graph
-            write_graph(cp, st.session_state.turn+1)
+            write_graph(st.session_state.turn+1)
 
             ## public messages
             if st.session_state.turn > 1:
