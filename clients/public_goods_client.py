@@ -78,7 +78,7 @@ def write_chat_container(con, cname, disabled, n, time):
     if cname == st.session_state.name:
         with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
             st.write(f"{cname} (💰: {endowment})")
-        concon.image(f'person_images/{st.session_state.name}.png')
+        concon.image(f'person_images/{st.session_state.name}.png', width=300)
         #concon.write(f"endowment: {endowment}")
     else:
         if int(endowment) <= 0:
@@ -310,7 +310,6 @@ class PublicGoodsClient(DefaultClient):
             # st.markdown(f"### Turn {st.session_state.turn} / {turn} Bidding.")
             st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
             # st.markdown(f"👤 **You are {st.session_state.name}.**")
-            st.markdown(f"👤 **당신의 캐릭터는 {st.session_state.name}입니다.**")
             # on = st.toggle(f"Click to see Round Rule.")
             on = st.toggle(f"클릭하여 라운드 규칙을 확인해보세요!")
             if on:
@@ -329,6 +328,7 @@ class PublicGoodsClient(DefaultClient):
                 st.markdown(f"  -   튜토리얼에서 보셨듯이, 처음부터 상대팀을 탈락시킨다면 여러분은 마지막 라운드까지의 참가비를 낼 수 없어 아무도 승리하지 못할 것입니다.")
                 st.markdown(f"  -   총 {turn} 라운드를 생존해야 하니 신중하게 입찰해주세요!")
 
+            st.markdown(f"👤 **당신의 캐릭터는 {st.session_state.name}입니다.**")
             if st.session_state.turn != 1:
                 ## graph
                 # write_graph(st.session_state.turn)
