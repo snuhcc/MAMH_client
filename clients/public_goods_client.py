@@ -133,6 +133,7 @@ def write_graph(vis_turn):
                 y=contribution_df[col],
                 mode='lines',
                 name=col,
+                autosize=True,
                 line=dict(width=2, color=team_colors[idx]),  # Set line width and color
                 hoverinfo='x+y+name',
             ))
@@ -140,6 +141,7 @@ def write_graph(vis_turn):
             title='플레이어 입찰 금액',
             xaxis_title='라운드',
             yaxis_title='금액',
+            autosize=True,
             hovermode='x unified',  # Highlight entire line on hover
             xaxis=dict(
                 tickmode='linear',
@@ -604,7 +606,17 @@ class PublicGoodsClient(DefaultClient):
                 if not st.session_state.session_control:
                     data = ""
                     while 'end_game' not in data and 'start_turn' not in data:
-                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        buf = st.session_state.server_socket.recv(1024)
+                        try:
+                            data = buf.decode('utf-8')
+                        except:
+                            while buf[-3:] != b'END':
+                                buf += st.session_state.server_socket.recv(1024)
+                            data = buf[:-3].decode('utf-8')
+                    if len(buf) == 1024:
+                        while buf[-3:] != b'END':
+                            buf += st.session_state.server_socket.recv(1024)
+                        data = buf[:-3].decode('utf-8')
                     data_list = data.split('\n\n')
                     if data_list[0] == 'end_game':
                         st.session_state.server_socket.send('received'.encode())
