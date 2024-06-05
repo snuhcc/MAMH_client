@@ -28,8 +28,8 @@ def sending_mail(player_msgs, time):
     for sends in sending.replace('@', ': ').split('\n\n'):
         if ':' in sends:
             name, msg = sends.split(':')
-            emoji = "답장" if time == 'day' else "제안"
-            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)**{st.session_state.turn}-{emoji}** {msg}\n\n"
+            emoji = ":green[◀️답장]" if time == 'day' else ":orange[◀️제안]"
+            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(send)**&#x{2459 + st.session_state.turn}; | {emoji}** | {msg}\n\n"
     st.session_state.client_log[st.session_state.turn] += "\n\n --- \n\n"
     st.session_state.session_control = False
     st.session_state.tmp_submitted = {k:False for k in st.session_state.tmp_submitted.keys()}
@@ -38,14 +38,57 @@ def sending_mail(player_msgs, time):
         st.session_state.page += 1
     elif time == 'day':
         turnpage()
+
+def get_msg_from_server(splitter):
+    data = ""
+    buf = b''
+    if isinstance(splitter, list):
+        bools = sum([sp in data for sp in splitter]) > 0
+        while not bools:
+            buf += st.session_state.server_socket.recv(1024)
+            try:
+                data = buf.decode('utf-8')
+            except Exception as e:
+                print(e)
+                bools = sum([sp in data for sp in splitter]) > 0
+                continue
+            for sp in splitter:
+                if sp in data:
+                    if 'END' in data:
+                        data = sp + data.split(sp)[1].split('END')[0]
+                        break
+                    else:
+                        buf = data.split(sp)[1].encode()
+                        st.write(buf)
+                        bools = sum([sp in data for sp in splitter]) > 0
+                        continue
+            bools = sum([sp in data for sp in splitter]) > 0
+    else:
+        while splitter not in data:
+            buf += st.session_state.server_socket.recv(1024)
+            try:
+                data = buf.decode('utf-8')
+            except:
+                continue
+            if splitter in data:
+                if 'END' in data:
+                    data = splitter + data.split(splitter)[1].split('END')[0]
+                    break
+                else:
+                    buf = data.split(splitter)[1].encode()
+                    continue
+    print(f"splitted data: {data}")
+    print("끝이양")
+    return data
+
  
 def write_team_chat_container(con, team, names, disabled, time):
     fc = con.container()
     cb1, cb2 = con.columns([1,1])
-    cb1c = cb1.container(height=600)
-    cb3c = cb1.container(height=600)
-    cb2c = cb2.container(height=600)
-    cb4c = cb2.container(height=600)
+    cb1c = cb1.container(height=700)
+    cb3c = cb1.container(height=700)
+    cb2c = cb2.container(height=700)
+    cb4c = cb2.container(height=700)
     eds = 0
     if team == 'blue':
         eds += write_chat_container(cb1c, names[0], disabled[0], 0, time)
@@ -62,7 +105,7 @@ def write_team_chat_container(con, team, names, disabled, time):
     
 
 def write_chat_container(con, cname, disabled, n, time):
-    cheight = 250
+    cheight = 350 if cname != st.session_state.name else 500
     ncon = con.container()
     concon = con.container(height=cheight, border=False)
     
@@ -78,7 +121,7 @@ def write_chat_container(con, cname, disabled, n, time):
     if cname == st.session_state.name:
         with ncon.chat_message('user', avatar=f'person_images/{st.session_state.name}.png'):
             st.write(f"{cname} (💰: {endowment})")
-        concon.write("### Your character")
+        concon.write("### 당신의 캐릭터")
         concon.image(f'person_images/{st.session_state.name}.png')
         #concon.write(f"endowment: {endowment}")
     else:
@@ -259,41 +302,25 @@ class PublicGoodsClient(DefaultClient):
             # with st.spinner("⌛ Please wait until the server starts the turn."):
             with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요. \n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
-                    data = ""
-                    data_list = []
-                    while 'start' not in data_list:
-                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
-                        data_list = data.split('\n\n')
+                    data = get_msg_from_server('start_bid')
+
+                    data_list = data.split('\n\n')
                     st.session_state.session_control = True
                     st.session_state.button_disabled = False
                     st.session_state.server_socket.send('get_player'.encode())
-                    while st.session_state.name not in data:
-                        buf = st.session_state.server_socket.recv(1024)
-                        try:
-                            data = buf.decode('utf-8')
-                        except:
-                            while buf[-3:] != b'END':
-                                buf += st.session_state.server_socket.recv(1024)
-                            data = buf[:-3].decode('utf-8')
-                    if len(buf) == 1024:
-                        while buf[-3:] != b'END':
-                            buf += st.session_state.server_socket.recv(1024)
-                        data = buf[:-3].decode('utf-8')
-                    data = st.session_state.name + st.session_state.name.join(data.split(st.session_state.name)[1:])
-                    st.session_state.player_data = data.split('\n\n')
+                    data = get_msg_from_server('get_player')
+                    st.session_state.player_data = data.split('\n\n')[1:]
 
                     if st.session_state.turn > 1:
                         st.session_state.server_socket.send('get_msg'.encode())
-                        reply_data = st.session_state.server_socket.recv(1024).decode('utf-8')
-                        while 'msg' not in reply_data:
-                            reply_data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                        reply_data = get_msg_from_server('get_msg')
                         st.session_state.client_log[st.session_state.turn] += "\n\nday Received \n\n"
                         all_replys = 'Replys'.join(reply_data.split('Replys:')[1:])
                         st.session_state.client_log[st.session_state.turn] += all_replys
                         for reply in all_replys.split('\n\n'):
                             if ':' in reply:
                                 name, msg = reply.split(':')
-                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**{st.session_state.turn}-답장** {msg}\n\n"
+                                st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**&#x{2459 + st.session_state.turn}; | :orange[답장▶️]** | {msg}\n\n"
         # start turn
         data_list = st.session_state.player_data
         if data_list[-3] not in [str(i) for i in range(8)]:
@@ -398,7 +425,7 @@ class PublicGoodsClient(DefaultClient):
             write_team_chat_container(rp, 'red', st.session_state.player_names, disabled, "turn")
 
             
-            st.markdown(f"#### 8명 입찰액 목표 합: **{data_list[3]}**")
+            st.markdown(f"#### 입찰액 목표 금액 (8명 합): **{data_list[3]}**")
             # st.markdown(f"### **Contribution for Turn {st.session_state.turn}**")
             st.markdown(f"### **라운드 {st.session_state.turn}의 입찰 금액**")
             with st.form(key='bid', border=False):
@@ -414,14 +441,12 @@ class PublicGoodsClient(DefaultClient):
     def turn_waiting_page(self):
         with self.placeholder.container():
             st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
-
+        
         with self.placeholder:
             # with st.spinner("⌛ Waiting for other players to finish betting..."):
             with st.spinner("⌛ 다른 플레이어들이 입찰을 마무리하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
-                    data = ""
-                    while 'end_turn' not in data:
-                        data = st.session_state.server_socket.recv(1024).decode('utf-8')
+                    data = get_msg_from_server('end_turn')
                     data_list = data.split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
@@ -537,7 +562,7 @@ class PublicGoodsClient(DefaultClient):
             st.session_state.table_updated = True
             # st.markdown("#### **Total Endowment change**")
             st.markdown("#### **총 입찰 금액**")
-            st.markdown(f"입찰: {st.session_state.tmp_conts} / 목표: 2000")
+            st.markdown(f"입찰: {st.session_state.tmp_conts} / 목표: 1800")
             st.markdown("#### **나의 자금 변화**")
             if st.session_state.endowment_table[st.session_state.name][-1] >= st.session_state.endowment_table[st.session_state.name][-2]:
                 st.write("➕ 💰")
@@ -610,13 +635,7 @@ class PublicGoodsClient(DefaultClient):
             # with st.spinner("⌛ Waiting for other players to finish checking results..."):
             with st.spinner("⌛ 다른 플레이어들이 결과를 확인하기까지 기다리는 중......\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
-                    data = ""
-                    while 'end_game' not in data and 'start_turn' not in data:
-                        buf = st.session_state.server_socket.recv(1024)
-                        try:
-                            data = buf.decode('utf-8')
-                        except:
-                            continue
+                    data = get_msg_from_server(['start_turn', 'end_game'])
                     data_list = data.split('\n\n')
                     if 'end_game' in data_list[0]:
                         st.session_state.server_socket.send('received'.encode())
@@ -636,38 +655,18 @@ class PublicGoodsClient(DefaultClient):
     def night_msg_page(self):
         with self.placeholder.container():
             st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
-
         with self.placeholder:
             # with st.spinner("🌒 Waiting for the server to start night..."):
             with st.spinner("서버에서 개인 메시지 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
-                    data = ""
-                    while 'STP' not in data:
-                        buf = st.session_state.server_socket.recv(1024)
-                        try:
-                            data = buf.decode('utf-8')
-                        except:
-                            while buf[-3:] != b'END':
-                                buf += st.session_state.server_socket.recv(1024)
-                            data = buf[:-3].decode('utf-8')
-                    if len(buf) == 1024:
-                        while buf[-3:] != b'END':
-                            buf += st.session_state.server_socket.recv(1024)
-                        data = buf[:-3].decode('utf-8')
+                    data = get_msg_from_server('STP')
                     public_messages = data.split('STP')[-1].split('\n\n')
                     st.session_state.public_messages = public_messages
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.server_socket.send('get_player_name'.encode())
-
-                    while 'player_name' not in data:
-                        buf = st.session_state.server_socket.recv(1024)
-                        try:
-                            data = buf.decode('utf-8')
-                        except:
-                            while buf[-3:] != b'END':
-                                buf += st.session_state.server_socket.recv(1024)
-                            data = buf[:-3].decode('utf-8')
+                    print("no player name?")
+                    data = get_msg_from_server('player_name')
                     pname_list = data.split('player_name')[-1].split('\n')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
                     st.session_state.pname_list = pname_list
@@ -723,20 +722,7 @@ class PublicGoodsClient(DefaultClient):
             # with st.spinner("🌞 Waiting for the server to start day..."):
             with st.spinner("서버에서 답장 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
-                    data = ""
-                    while 'RPYS' not in data:
-                        buf = st.session_state.server_socket.recv(1024)
-                        try:
-                            data = buf.decode('utf-8')
-                        except:
-                            while buf[-3:] != b'END':
-                                buf += st.session_state.server_socket.recv(1024)
-                            data = buf[:-3].decode('utf-8')
-                    if len(buf) == 1024:
-                        while buf[-3:] != b'END':
-                            buf += st.session_state.server_socket.recv(1024)
-                        data = buf[:-3].decode('utf-8')
-                    
+                    data = get_msg_from_server('RPYS')
                     data_list = data.split('RPYS')[-1].split('\n\n')
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
@@ -748,7 +734,7 @@ class PublicGoodsClient(DefaultClient):
                     for data_log in data_list:
                         if ':' in data_log:
                             name, msg = data_log.split(':')
-                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)**{st.session_state.turn}-제안**{msg}\n\n"
+                            st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn}:(received)**&#x{2459 + st.session_state.turn}; | :green[제안▶️]** | {msg}\n\n"
                     for d in st.session_state.rdatas:
                         if d == "" or d == "END":
                             continue
