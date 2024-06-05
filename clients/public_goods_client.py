@@ -255,6 +255,8 @@ class PublicGoodsClient(DefaultClient):
         with self.placeholder:
             # with st.spinner("⌛ Please wait until the server starts the turn."):
             with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요."):
+                st.write("아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.")
+                st.write("안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요.")
                 if not st.session_state.session_control:
                     data = ""
                     data_list = []
@@ -413,6 +415,8 @@ class PublicGoodsClient(DefaultClient):
         with self.placeholder:
             # with st.spinner("⌛ Waiting for other players to finish betting..."):
             with st.spinner("⌛ 다른 플레이어들이 입찰을 마무리하기까지 기다리는 중..."):
+                st.write("아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.")
+                st.write("안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요.")
                 if not st.session_state.session_control:
                     data = ""
                     while 'end_turn' not in data:
@@ -599,6 +603,8 @@ class PublicGoodsClient(DefaultClient):
         with self.placeholder:
             # with st.spinner("⌛ Waiting for other players to finish checking results..."):
             with st.spinner("⌛ 다른 플레이어들이 결과를 확인하기까지 기다리는 중......"):
+                st.write("아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.")
+                st.write("안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요.")
                 if not st.session_state.session_control:
                     data = ""
                     while 'end_game' not in data and 'start_turn' not in data:
@@ -626,6 +632,8 @@ class PublicGoodsClient(DefaultClient):
         with self.placeholder:
             # with st.spinner("🌒 Waiting for the server to start night..."):
             with st.spinner("서버에서 개인 메시지 세션을 시작하기까지 기다리는 중..."):
+                st.write("아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.")
+                st.write("안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요.")
                 if not st.session_state.session_control:
                     data = ""
                     while 'STP' not in data:
@@ -708,6 +716,8 @@ class PublicGoodsClient(DefaultClient):
         with self.placeholder:
             # with st.spinner("🌞 Waiting for the server to start day..."):
             with st.spinner("서버에서 답장 세션을 시작하기까지 기다리는 중..."):
+                st.write("아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.")
+                st.write("안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요.")
                 if not st.session_state.session_control:
                     data = ""
                     while 'RPYS' not in data:
