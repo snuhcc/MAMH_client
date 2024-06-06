@@ -71,14 +71,13 @@ def get_msg_from_server(splitter):
             except:
                 continue
             if splitter in data:
+                data = data.split(splitter)[1]
                 if 'END' in data:
-                    data = splitter + data.split(splitter)[1].split('END')[0]
+                    data = splitter + data.split('END')[0]
                     break
                 else:
-                    buf = data.split(splitter)[1].encode()
+                    buf = data.encode()
                     continue
-    print(f"splitted data: {data}")
-    print("끝이양")
     return data
 
  
@@ -299,7 +298,7 @@ class PublicGoodsClient(DefaultClient):
 
         with self.placeholder:
             # with st.spinner("⌛ Please wait until the server starts the turn."):
-            with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요. "):
+            with st.spinner("서버에서 개인 메시지 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
                     data = get_msg_from_server('start_bid')
 
