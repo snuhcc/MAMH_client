@@ -71,13 +71,14 @@ def get_msg_from_server(splitter):
             except:
                 continue
             if splitter in data:
-                data = data.split(splitter)[1]
                 if 'END' in data:
-                    data = splitter + data.split('END')[0]
+                    data = splitter + data.split(splitter)[1].split('END')[0]
                     break
                 else:
-                    buf = data.encode()
+                    buf = data.split(splitter)[1].encode()
                     continue
+    print(f"splitted data: {data}")
+    print("끝이양")
     return data
 
  
@@ -239,9 +240,9 @@ def write_public_messages(vis_turn):
                 st.markdown(msg)
 
 class PublicGoodsClient(DefaultClient):
-    def __init__(self, fc, placeholder):
+    def __init__(self, placeholder):
 
-        super().__init__(fc, placeholder)
+        super().__init__(placeholder)
         pass
 
     def button2(self, **kwargs):
@@ -295,11 +296,10 @@ class PublicGoodsClient(DefaultClient):
             st.button("🔗 접속", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'user_info': user_info}, disabled=st.session_state.page!=0)
 
     def turn_page(self):
-        fc = self.placeholder.container()
 
         with self.placeholder:
             # with st.spinner("⌛ Please wait until the server starts the turn."):
-            with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요. \n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
+            with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요. "):
                 if not st.session_state.session_control:
                     data = get_msg_from_server('start_bid')
 
@@ -320,6 +320,8 @@ class PublicGoodsClient(DefaultClient):
                             if ':' in reply:
                                 name, msg = reply.split(':')
                                 st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**&#x{2459 + st.session_state.turn}; | :orange[답장▶️]** | {msg}\n\n"
+        
+        fc = self.placeholder.container()
         # start turn
         data_list = st.session_state.player_data
         if data_list[-3] not in [str(i) for i in range(8)]:
@@ -328,9 +330,6 @@ class PublicGoodsClient(DefaultClient):
         else:
             turn = data_list[-3]
             st.session_state.round_num = turn
-
-        with fc:
-            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
 
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         with cp.container():
@@ -438,9 +437,6 @@ class PublicGoodsClient(DefaultClient):
 
 
     def turn_waiting_page(self):
-        with self.placeholder.container():
-            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
-        
         with self.placeholder:
             # with st.spinner("⌛ Waiting for other players to finish betting..."):
             with st.spinner("⌛ 다른 플레이어들이 입찰을 마무리하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
@@ -480,6 +476,7 @@ class PublicGoodsClient(DefaultClient):
         # Blue team
         names = st.session_state.player_names
         disabled = [True for i in range(len(names))]
+        print(names)
         write_team_chat_container(bp, 'blue', names, disabled, "turnend")
         write_team_chat_container(rp, 'red', names, disabled, "turnend")
         with cp:
@@ -627,8 +624,6 @@ class PublicGoodsClient(DefaultClient):
 
 
     def turn_end_page(self):
-        with self.placeholder.container():
-            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
         with self.placeholder:
             # with st.spinner("⌛ Waiting for other players to finish checking results..."):
             with st.spinner("⌛ 다른 플레이어들이 결과를 확인하기까지 기다리는 중......\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
@@ -644,6 +639,7 @@ class PublicGoodsClient(DefaultClient):
                         st.session_state.turn += 1
                         st.session_state.session_control = True
                         onclick = self.button4(msgpage)
+
         with self.placeholder.container():
             # st.write("🌒 Goto Next Turn Night...")
             st.write("이제부터 1대1로 개인 메시지를 작성해주세요")
@@ -651,8 +647,6 @@ class PublicGoodsClient(DefaultClient):
             st.button("➡️ 개인 메시지 세션으로 넘어가기", key='button4', on_click=onclick)
 
     def night_msg_page(self):
-        with self.placeholder.container():
-            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
         with self.placeholder:
             # with st.spinner("🌒 Waiting for the server to start night..."):
             with st.spinner("서버에서 개인 메시지 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
@@ -663,12 +657,13 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.server_socket.send('get_player_name'.encode())
+                    print("no player name?")
                     data = get_msg_from_server('player_name')
                     pname_list = data.split('player_name')[-1].split('\n')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
                     st.session_state.pname_list = pname_list
-            
-        
+
+
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         ## Chat interface : TODO dynamic with n, not just 4
         # Blue team
@@ -712,9 +707,7 @@ class PublicGoodsClient(DefaultClient):
 
     
     def day_msg_page(self):
-        with self.placeholder.container():
-            st.markdown(f"<h1 style='text-align: center; '>Public Goods Game (Round {st.session_state.turn} / {st.session_state.round_num})</h1>", unsafe_allow_html=True)
-
+        
         with self.placeholder:
             # with st.spinner("🌞 Waiting for the server to start day..."):
             with st.spinner("서버에서 답장 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
@@ -739,6 +732,7 @@ class PublicGoodsClient(DefaultClient):
                             st.session_state.rnames.append(d.split(':')[1].strip())
                         else:
                             st.session_state.rnames.append(d.split(':')[0].strip())
+
         bp, _, cp, _, rp = self.placeholder.columns([4.1,0.1,2.4,0.1,4.1])
         ## Chat interface : TODO dynamic with n, not just 4
         # Blue team
@@ -804,3 +798,9 @@ class PublicGoodsClient(DefaultClient):
         st.session_state.server_socket.send('received'.encode())
         # st.button("End the game", key='button6', on_click=initpage)
         st.button("게임 종료", key='button6', on_click=initpage)
+
+    def blank_page(self):
+        st.write("Some error find.")
+        data = get_msg_from_server('page_fault')
+        returns = data.split('\n\n')[1]
+        st.session_state.page = int(returns)

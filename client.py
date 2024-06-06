@@ -75,9 +75,7 @@ if __name__ == '__main__':
     initiation()
     game_name = "PublicGoods"
     curClient = select_client(game_name)
-    fc = placeholder.container()
-    lc = placeholder.container()
-    dc = curClient(fc, lc)
+    dc = curClient(placeholder)
 
     if st.session_state.page == 0:
         dc.main_page(HOST, PORT)
