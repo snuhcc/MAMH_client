@@ -66,6 +66,7 @@ def get_msg_from_server(splitter):
             bools = sum([sp in data for sp in splitter]) > 0
     else:
         while splitter not in data:
+            print(data)
             buf += st.session_state.server_socket.recv(1024)
             try:
                 data = buf.decode('utf-8')
@@ -657,7 +658,6 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.server_socket.send('get_player_name'.encode())
-                    print("no player name?")
                     data = get_msg_from_server('player_name')
                     pname_list = data.split('player_name')[-1].split('\n')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
