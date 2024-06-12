@@ -595,6 +595,7 @@ class PublicGoodsClient(DefaultClient):
             
             if int(st.session_state.turn) == int(st.session_state.round_num):
                 st.write("모든 라운드가 종료되었습니다.")
+                st.write(data_list[5])
                 onclick = endpage
                 st.session_state.server_socket.send('received'.encode())
                 public_message = ""
