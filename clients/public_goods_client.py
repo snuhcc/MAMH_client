@@ -630,6 +630,7 @@ class PublicGoodsClient(DefaultClient):
             with st.spinner("⌛ 다른 플레이어들이 결과를 확인하기까지 기다리는 중......\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
                     data = get_msg_from_server(['start_turn', 'end_game'])
+                    print(data)
                     data_list = data.split('\n\n')
                     if 'end_game' in data_list[0]:
                         st.session_state.server_socket.send('received'.encode())
