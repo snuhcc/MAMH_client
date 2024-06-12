@@ -45,6 +45,7 @@ def get_msg_from_server(splitter):
     if isinstance(splitter, list):
         bools = sum([sp in data for sp in splitter]) > 0
         while not bools:
+            print(data)
             buf += st.session_state.server_socket.recv(1024)
             try:
                 data = buf.decode('utf-8')
@@ -592,7 +593,7 @@ class PublicGoodsClient(DefaultClient):
                     onclick = endpage
                     public_message = ""
             
-            if int(st.session_state.turn) == int(st.session_state.round_num):
+            if int(st.session_state.turn) == int(st.session_state.round_num)-1:
                 st.write("모든 라운드가 종료되었습니다.")
                 onclick = endpage
                 st.session_state.server_socket.send('received'.encode())
