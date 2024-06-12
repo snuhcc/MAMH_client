@@ -80,6 +80,8 @@ def get_msg_from_server(splitter):
                 else:
                     buf = data.encode()
                     continue
+
+    print("?")
     return data
 
  
