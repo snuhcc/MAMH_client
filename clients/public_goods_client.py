@@ -79,7 +79,6 @@ def get_msg_from_server(splitter):
                     buf = data.encode()
                     continue
 
-    print("?")
     return data
 
  
