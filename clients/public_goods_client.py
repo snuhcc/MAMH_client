@@ -317,7 +317,7 @@ class PublicGoodsClient(DefaultClient):
                             if ':' in reply:
                                 name, msg = reply.split(':')
                                 st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**&#x{2459 + st.session_state.turn}; | :orange[답장▶️]** | {msg}\n\n"
-        
+        st.write(st.session_state.player_data)
         fc = self.placeholder.container()
         # start turn
         data_list = st.session_state.player_data
