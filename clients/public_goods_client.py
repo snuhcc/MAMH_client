@@ -61,7 +61,7 @@ def get_msg_from_server(splitter):
                         st.write(buf)
                         continue
     else:
-        while 'END' not in data:
+        while 'END' not in data or splitter not in data:
             buf += st.session_state.server_socket.recv(1024)
             try:
                 data = buf.decode('utf-8')
@@ -317,7 +317,6 @@ class PublicGoodsClient(DefaultClient):
                             if ':' in reply:
                                 name, msg = reply.split(':')
                                 st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**&#x{2459 + st.session_state.turn}; | :orange[답장▶️]** | {msg}\n\n"
-        st.write(st.session_state.player_data)
         fc = self.placeholder.container()
         # start turn
         data_list = st.session_state.player_data
