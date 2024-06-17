@@ -50,18 +50,17 @@ def get_msg_from_server(splitter):
                 data = buf.decode('utf-8')
             except Exception as e:
                 print(e)
-                bools = sum([sp in data for sp in splitter]) > 0
                 continue
             for sp in splitter:
                 if sp in data:
+                    data = data.split(sp)[1]
                     if 'END' in data:
-                        data = sp + data.split(sp)[1].split('END')[0]
+                        data = sp + data.split('END')[0]
                         break
                     else:
-                        buf = (sp + data.split(sp)[1]).encode()
+                        buf = (sp + data).encode()
                         bools = sum([sp in data for sp in splitter]) > 0
                         continue
-            bools = sum([sp in data for sp in splitter]) > 0
     else:
         while 'END' not in data or splitter not in data:
             buf += st.session_state.server_socket.recv(1024)
