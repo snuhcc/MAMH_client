@@ -45,6 +45,7 @@ def get_msg_from_server(splitter):
     if isinstance(splitter, list):
         bools = sum([sp in data for sp in splitter]) > 0
         while 'END' not in data or not bools:
+            st.write(data)
             buf += st.session_state.server_socket.recv(1024)
             try:
                 data = buf.decode('utf-8')
