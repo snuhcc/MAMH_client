@@ -57,7 +57,7 @@ def get_msg_from_server(splitter):
                     data = data.split(sp)[1]
                     if 'END' in data:
                         data = sp + data.split('END')[0]
-                        break
+                        return
                     else:
                         buf = (sp + data).encode()
                         bools = sum([sp in data for sp in splitter]) > 0
