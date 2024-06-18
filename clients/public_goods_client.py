@@ -798,6 +798,8 @@ class PublicGoodsClient(DefaultClient):
         st.button("게임 종료", key='button6', on_click=initpage)
 
     def blank_page(self):
+        st.session_state.page = 6
+        st.rerun()
         st.write("Some error find.")
         data = get_msg_from_server('page_fault')
         returns = data.split('\n\n')[1]

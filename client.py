@@ -91,3 +91,5 @@ if __name__ == '__main__':
         dc.night_msg_page()
     elif st.session_state.page == 6:
         dc.day_msg_page()
+    elif st.session_state.page > 6:
+        dc.blank_page()
