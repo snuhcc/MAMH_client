@@ -799,6 +799,4 @@ class PublicGoodsClient(DefaultClient):
 
     def blank_page(self):
         st.write("Some error find.")
-        data = get_msg_from_server('page_fault')
-        returns = data.split('\n\n')[1]
-        st.session_state.page = int(returns)
+        st.write("진행자에게 에러 사실을 알려주세요.")
