@@ -641,7 +641,7 @@ class PublicGoodsClient(DefaultClient):
 
         with self.placeholder.container():
             # st.write("🌒 Goto Next Turn Night...")
-            st.write("이제부터 1대1로 개인 메시지를 작성해주세요")
+            st.write(":blue[이제부터 1대1로 개인 메시지를 작성해주세요]")
             # st.button("➡️ Next", key='button4', on_click=onclick)
             st.button("➡️ 개인 메시지 세션으로 넘어가기", key='button4', on_click=onclick)
 
