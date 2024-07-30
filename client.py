@@ -5,6 +5,7 @@ from clients import client_list, select_client
 
 
 st.set_page_config(layout='wide')
+
 # HOST / PORT setting
 # socket info - for remote server
 # HOST = '0.0.0.0'
@@ -18,6 +19,8 @@ placeholder = st.empty()
 def initiation():
     if "page" not in st.session_state:
         st.session_state.page = 0
+    if "game_name" not in st.session_state:
+        st.session_state.game_name = "Default"
     if "name" not in st.session_state:
         st.session_state.name = ""
     if "client_id" not in st.session_state:
@@ -70,13 +73,10 @@ def initiation():
         st.session_state.round_num = 0
 
 
-
 if __name__ == '__main__':
     initiation()
-    game_name = "PublicGoods"
-    curClient = select_client(game_name)
+    curClient = select_client(st.session_state.game_name)
     dc = curClient(placeholder)
-
     if st.session_state.page == 0:
         dc.main_page(HOST, PORT)
     elif st.session_state.page == 1:
@@ -91,5 +91,5 @@ if __name__ == '__main__':
         dc.night_msg_page()
     elif st.session_state.page == 6:
         dc.day_msg_page()
-    elif st.session_state.page > 6:
+    else:
         dc.blank_page()

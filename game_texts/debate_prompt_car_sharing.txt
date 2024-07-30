@@ -1,0 +1,23 @@
+These topics aim to examine the diverse economic and social effects of introducing a car-sharing system from multiple perspectives, facilitating in-depth discussions and better-informed policy decisions.
+
+The introduction of car-sharing could have various impacts on urban transportation. Proponents argue that car-sharing provides a flexible, cost-effective alternative to car ownership, reducing traffic congestion and lowering greenhouse gas emissions. Opponents, however, worry that car-sharing might not significantly reduce the number of cars on the road and could potentially lead to increased traffic in some areas. This topic explores the positive and negative impacts of car-sharing on urban transportation and how these effects can be managed.
+
+A critical aspect of implementing a car-sharing system is how to fund it. Proponents suggest that revenue can be generated through user fees, public-private partnerships, or government subsidies, which could also encourage sustainable transportation practices. Opponents argue that car-sharing might require substantial public investment and may not be financially sustainable in the long term. This topic discusses the methods of funding car-sharing systems and the economic impacts of these methods.
+
+The impact of car-sharing on existing public transportation systems is a significant point of debate. Proponents believe that car-sharing can complement public transportation, offering a last-mile solution and enhancing overall mobility. Opponents worry that car-sharing might draw users away from public transit, undermining its viability. This topic examines the effects of car-sharing on public transportation and explores ways to integrate car-sharing into the broader urban mobility framework.
+
+The concept of car sharing began in Zurich, Switzerland, in 1948. A housing cooperative called "Selbstfahrergenossenschaft" first introduced a car-sharing program[1][2]. It started from the simple idea of sharing cars among people who couldn't afford to own one[2].
+
+In the early 1970s, system-wide car-sharing projects emerged, such as the ProcoTip system in France and the Witkar project in Amsterdam[1]. In July 1977, the first official car-sharing experiment, the "Share-a-Car" service, began in Suffolk, UK[1].
+
+The 1980s and early 1990s can be seen as the 'coming of age' period for car sharing. During this time, small-scale non-profit systems slowly grew, mainly in Switzerland and Germany[1]. In North America, car sharing started in 1994 with Communauto, founded by Benoît Robert in Quebec City[1].
+
+In the United States, CarSharing Portland, founded by Dave Brook in 1998, was the first car-sharing company. In 2000, Flexcar and Zipcar were established on the west and east coasts, respectively[1]. By 2010, Zipcar accounted for 80% of the U.S. car-sharing market and half of the global car-sharing users[1].
+
+Over the past 20 years, the car-sharing market has expanded further. This growth has been driven by restrictions on private car use in urban areas, advancements in digital technology, and changing consumer attitudes towards car ownership[4]. However, car sharing still occupies a relatively small portion of the overall shared mobility market[4].
+
+Car sharing has the potential to become an important part of future mobility systems. It offers the advantages of improving the performance of the overall mobility system, enhancing sustainability and safety, and providing users with the convenience of private cars[4].
+
+However, if car sharing is not properly integrated into the overall mobility system, some issues may arise. For example, free-floating car sharing could lead users to choose cars over public transportation[4].
+
+For the future success of car sharing, evolution beyond traditional models and automaker-led models will be necessary[4]. Additionally, improving user experience and integrating various car-sharing options into a single intuitive interface will be crucial challenges[5].

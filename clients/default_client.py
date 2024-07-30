@@ -28,8 +28,11 @@ def button1(HOST, PORT, user_info):
     data = server_socket.recv(1024).decode('utf-8')
     print(data)
     if data.split('\n\n')[0] == 'accepted':
-        name = data.split('\n\n')[-1]
+        name = data.split('\n\n')[1]
+        game_name = data.split('\n\n')[2]
         st.session_state.name = name
+        st.session_state.game_name = game_name
+        st.session_state.idle_toggle = False
         st.session_state.page += 1
     else:
         st.warning('player name duplicated.')
@@ -53,11 +56,25 @@ class DefaultClient:
     # Define your own main page to get your requirments
     def main_page(self, HOST, PORT):
         with self.placeholder.container():
-            st.write("Welcome to new Game!")
+            #st.markdown("### 🎮 Welcome to the New Chatting!")
+            st.markdown("### 🎮 새로운 채팅에 오신 것을 환영합니다!")
 
-            st.write("Type your information and connect to your server!")
-            name = st.text_input('Nickname', 'Tester')
-            st.button("Connect", key='button1', on_click=button1, kwargs={'HOST': HOST, 'PORT': PORT, 'name': name}, disabled=st.session_state.page!=0)
+            #st.write("Type your information and connect to your server!")
+            st.write("정보를 입력하시면 서버에 연결해드리겠습니다!")
+            HOST = st.text_input("🌐 IP Address", value="13.125.250.236")
+            PORT = st.text_input("🌐 IP Port", value="20912")
+            username = st.text_input("📛 Your Name", "")
+            #st.write("You will receive a new nickname when the game starts.")
+            st.write("게임이 시작하면 새로운 캐릭터를 임의로 정해드릴게요!")
+            # persona = st.text_area('Persona', '')
+            user_info = {"username": username}
+            st.button(
+                "🔗 Connect",
+                key="button1",
+                on_click=button1,
+                kwargs={"HOST": HOST, "PORT": PORT, "user_info": user_info},
+                disabled=st.session_state.page != 0,
+            )
 
     def turn_page(self):
 
