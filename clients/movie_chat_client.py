@@ -362,11 +362,11 @@ class MovieChatClient(DefaultClient):
                     button_disabled = st.session_state.ai_acting
 
                 ic1, ic2 = st.columns([1, 9])
-                ic1.button(
-                    "발언권 넘기기",
-                    on_click=do_idle_toggle,
-                    disabled=button_disabled,
-                )
+                # ic1.button(
+                #     "발언권 넘기기",
+                #     on_click=do_idle_toggle,
+                #     disabled=button_disabled,
+                # )
                 imsg_str = (
                     "여기에 메시지를 작성해주세요."
                     if not st.session_state.ai_acting
@@ -394,6 +394,7 @@ class MovieChatClient(DefaultClient):
 
             st.session_state.server_socket.send(f"send\n\n{input_message}".encode())
             st.session_state.waiting_idle = True
+            time.sleep(0.2)
             # st.session_state.client_thread.new_input_msg = input_message
             # st.session_state.client_thread.send_msg = True
         # time.sleep(0.5)
