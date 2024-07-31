@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 debate_dict = {
     "3D_printing": "./game_texts/debate_reading_3D_printing.txt",
     "basic_income": "./game_texts/debate_reading_basic_income.txt",
-    "car_sharing": "./game_texts/debate_reading_car_sharing.txt",
+    "Car-hailing_services": "./game_texts/debate_reading_car_sharing.txt",
+    "Artificial_womb_technology": "./game_texts/debate_reading_art_womb.txt"
 }
 
 

@@ -1,0 +1,44 @@
+### 인공 자궁 기술이란?
+
+인공 자궁 기술은 임신이 극도로 미숙한 영아를 체외에서 안전하게 성장시킬 수 있도록 설계된 실험적 의료 장치입니다. 이 장치는 주로 자궁과 유사한 환경을 제공하여 태아가 외부에서 더 발전할 시간을 벌 수 있게 합니다 ((23)) ((26)).
+
+### 인공 자궁의 구조와 작동 원리
+
+인공 자궁은 주로 "바이오백(Biobag)"이라 불리는 투명한 주머니 형태로, 태아가 실험실에서 만든 양수와 유사한 액체에 떠 있는 구조로 되어 있습니다. 이 환경은 자연 자궁 내부와 매우 비슷하게 설계되었습니다 ((26)).
+
+태아는 공기 대신 인공 양수를 사용하여 호흡하며, 이는 태아가 자궁 내에서 있었던 환경을 모방한 것입니다. 산소 공급은 태아의 제대혈관에 꽂힌 관을 통해 이루어져 태아의 혈액이 인공 폐를 통해 산소를 공급받게 됩니다 ((27)).
+
+### 인공 자궁 기술의 최근 발전 현황
+
+2017년 미국 필라델피아 아동병원 연구팀은 미숙한 상태로 태어난 새끼 양을 인공 자궁 시스템에서 무사히 성체까지 성장시키는 데 성공했습니다 ((5)). 2019년 베이징 동물학 연구소는 인공 자궁 안에서 원숭이 배아를 장기 형성 단계까지 유지하는 데 성공했습니다 ((5)). 2021년 3월에는 이스라엘 바이츠만 연구소가 임신 중인 실험용 쥐 배아를 사람의 탯줄에서 추출한 혈청과 산소를 주입한 튜브 안에서 최대 11일까지 생존시키는 데 성공했습니다 ((5)).
+
+### 인공 지능과의 융합
+
+2021년 중국 쑤저우 의료용 생체 공학 연구팀은 인공 자궁 환경에서 배아를 관리하고 보호하는 인공지능 시스템 'AI 유모'를 개발했습니다. 이 시스템은 배아의 상태를 지속적으로 모니터링하고, 필요한 조치를 자동으로 수행하여 배아의 생존과 성장을 돕습니다 ((7)).
+
+### 인공 자궁 기술의 잠재적 이점
+
+인공 자궁 기술은 극도로 미숙한 영아들의 생존율을 크게 높일 수 있습니다. 현재 의료 기술로는 임신 23주 미만의 미숙아 생존이 매우 어렵지만, 인공 자궁은 이러한 초극소 미숙아에게 추가적인 발달 시간을 제공할 수 있습니다 ((19)) ((21)) ((23)).
+
+### 윤리적 문제와 규제
+
+인공 자궁 기술은 여러 윤리적, 법적 문제를 야기합니다. 국제 생명 연구 윤리법은 2주 이상 성장한 인간 배아를 생체 실험에 사용하는 것을 금지하고 있으며, 이는 인공 자궁 연구의 큰 제한 요소입니다 ((9)) ((10)). 또한 인공 자궁에서 자란 아이에게 문제가 발생했을 때 책임 소재가 불분명하다는 문제도 있습니다 ((10)).
+
+### 인공 자궁 기술의 미래
+
+인공 자궁 기술이 상용화되기 위해서는 규제와 윤리적 문제를 해결해야 합니다. 이러한 기술은 의학의 발전과 사회적 문제 해결에 기여할 가능성이 있지만, 동시에 생명 윤리와 법적 책임 문제를 수반합니다 ((12)).
+
+Sources: 
+[1] [과학향기] 저출산 문제 해결할 수 있을까? 인공 자궁 기술 : 네이버 블로그, https://m.blog.naver.com/withkisti/222675499262
+[2] [동향]저출산 문제 해결할 수 있을까? 인공 자궁 기술, https://scienceon.kisti.re.kr/srch/selectPORSrchTrend.do?cn=6542
+[3] Everything you need to know about artificial wombs, https://www.technologyreview.com/2023/09/29/1080538/everything-you-need-to-know-about-artificial-wombs/
+[4] [KISTI과학향기]저출산 문제 해결할 수 있을까? 인공 자궁 기술 - 전자신문, https://www.etnews.com/20220318000041
+[5] Artificial womb - Wikipedia, https://en.wikipedia.org/wiki/Artificial_womb
+[6] Artificial womb may someday help a premature baby survive. There are ..., https://www.npr.org/sections/health-shots/2024/04/12/1241895501/artificial-womb-premature-birth
+[7] Artificial wombs could soon be tested in human trials - ABC News, https://abcnews.go.com/GMA/Wellness/artificial-wombs-tested-human-trials-new-technology/story?id=103356485
+[8] 임상시험 임박한 인공 자궁에 대해 알아야 할 모든 것 - MIT 테크놀로지 리뷰 | MIT Technology Review Korea, https://www.technologyreview.kr/everything-you-need-to-know-about-artificial-wombs/
+[9] Artificial Womb Trials in Humans Could Start Soon, https://www.scientificamerican.com/article/artificial-womb-trials-in-humans-could-start-soon/
+[10] Artificial wombs could someday be a reality – here’s how they may ..., https://theconversation.com/artificial-wombs-could-someday-be-a-reality-heres-how-they-may-change-our-notions-of-parenthood-217490
+[11] Human trials of artificial wombs could start soon. Here’s ... - Nature, https://www.nature.com/articles/d41586-023-02901-1
+[12] FDA advisers discuss future of ‘artificial womb’ for human infants, https://www.cnn.com/2023/09/19/health/artificial-womb-human-trial-fda/index.html
+[13] 저출산 한국 위한 거라고? 현실로 다가온 '출산기계' 인공자궁 | 중앙일보, https://www.joongang.co.kr/article/25189697
