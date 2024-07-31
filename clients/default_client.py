@@ -21,6 +21,8 @@ def button1(HOST, PORT, user_info):
     except:
         st.warning('connection refused. try again.')
         return
+    
+    st.session_state.real_name = user_info['username']
     sending_data = "\n\n".join([str(user_info[k]) for k in user_info.keys()])
     sending_data = "ready\n\n" + sending_data
     server_socket.send(sending_data.encode())
@@ -63,9 +65,8 @@ class DefaultClient:
             st.write("정보를 입력하시면 서버에 연결해드리겠습니다!")
             HOST = st.text_input("🌐 IP Address", value="13.125.250.236")
             PORT = st.text_input("🌐 IP Port", value="20912")
-            username = st.text_input("📛 Your Name", "")
+            username = st.selectbox("📛 이름을 선택하세요.", [f"U{i}" for i in range(15)])
             #st.write("You will receive a new nickname when the game starts.")
-            st.write("게임이 시작하면 새로운 캐릭터를 임의로 정해드릴게요!")
             # persona = st.text_area('Persona', '')
             user_info = {"username": username}
             st.button(

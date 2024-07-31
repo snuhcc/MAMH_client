@@ -92,7 +92,7 @@ def button_end():
         ]
     )
     st.session_state.server_socket.send(
-        f"end_game\n\n{client_chat_log}END".encode()
+        f"end_game\n\n{st.session_state.real_name}\n\n{client_chat_log}END".encode()
     )
     st.session_state.client_chats = []
     st.session_state.timestamps = []
