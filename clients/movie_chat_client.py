@@ -96,12 +96,11 @@ def button_end():
     )
     st.session_state.client_chats = []
     st.session_state.timestamps = []
-    st.session_state.msg_history = []
-    nextpage()
-
-def button_restart():
+    st.session_state.msg_history = []    
     st.session_state.restarted = True
     st.session_state.session_num += 1
+
+def button_restart():
     prevpage()
 
 def do_idle_toggle():
