@@ -4,6 +4,7 @@ import pandas as pd
 import logging
 import time
 import os 
+from glob import glob
 from PIL import Image
 from streamlit_extras.bottom_container import bottom
 from datetime import datetime
@@ -220,7 +221,11 @@ class DebateChatClient(DefaultClient):
                     st.markdown(f"{st.session_state.ai_jobs[i]}")
                     try:
                         # Load and resize the image
-                        image = Image.open(f"person_images/{st.session_state.player_names[i].capitalize()}.png")
+                        avatar_paths = glob(f"person_images/{st.session_state.player_names[i].capitalize()}.png")
+                        if len(avatar_paths) > 0:
+                            image = Image.open(avatar_paths[0])
+                        else:
+                            image = Image.open("person_images/default.png")
                         fixed_size_image = image.resize((200, 200))  # Resize to 200x200 pixels
                         st.image(
                             fixed_size_image
@@ -261,8 +266,9 @@ class DebateChatClient(DefaultClient):
                         with st.chat_message("user"):
                             st.markdown(chat.replace('\n', '\n\n'))
                     else:
-                        if os.path.isfile(f"person_images/{name.capitalize()}.png"):
-                            avatar_path = f"person_images/{name.capitalize()}.png"
+                        avatar_paths = glob(f"person_images/{name.capitalize()}.png")
+                        if len(avatar_paths) > 0:
+                            avatar_path = avatar_paths[0]
                         else:
                             avatar_path = "person_images/default.png"
                         with st.chat_message(
@@ -364,8 +370,9 @@ class DebateChatClient(DefaultClient):
                                 if name.capitalize() == st.session_state.name:
                                     pass
                                 else:
-                                    if os.path.isfile(f"person_images/{name.capitalize()}.png"):
-                                        avatar_path = f"person_images/{name.capitalize()}.png"
+                                    avatar_paths = glob(f"person_images/{name.capitalize()}.png")
+                                    if len(avatar_paths) > 0:
+                                        avatar_path = avatar_paths[0]
                                     else:
                                         avatar_path = "person_images/default.png"
                                     with cc.chat_message(

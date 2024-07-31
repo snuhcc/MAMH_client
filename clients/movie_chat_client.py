@@ -5,6 +5,7 @@ import pandas as pd
 import logging
 import random
 import os
+from glob import glob
 from PIL import Image
 from streamlit_extras.bottom_container import bottom
 from datetime import datetime
@@ -201,8 +202,9 @@ class MovieChatClient(DefaultClient):
                     if st.session_state.first_rendering:
                         ts = 0.5
                         time.sleep(ts)
-                    if os.path.isfile(f"person_images/{player_name.capitalize()}.png"):
-                        avatar_path = f"person_images/{player_name.capitalize()}.png"
+                    avatar_paths = glob(f"person_images/{player_name.capitalize()}.png")
+                    if len(avatar_paths) > 0:
+                        avatar_path = avatar_paths[0]
                     else:
                         avatar_path = "person_images/default.png"
                     with st.chat_message(
@@ -278,7 +280,11 @@ class MovieChatClient(DefaultClient):
                     st.markdown(f"{st.session_state.ai_jobs[i]}")
                     try:
                         # Load and resize the image
-                        image = Image.open(f"person_images/{st.session_state.player_names[i].capitalize()}.png")
+                        avatar_paths = glob(f"person_images/{st.session_state.player_names[i].capitalize()}.png")
+                        if len(avatar_paths) > 0:
+                            image = Image.open(avatar_paths[0])
+                        else:
+                            image = Image.open("person_images/default.png")
                         fixed_size_image = image.resize((200, 200))  # Resize to 200x200 pixels
                         st.image(
                             fixed_size_image
@@ -317,8 +323,9 @@ class MovieChatClient(DefaultClient):
                         with st.chat_message("user"):
                             st.markdown(chat.replace('\n', '\n\n'))
                     else:
-                        if os.path.isfile(f"person_images/{name.capitalize()}.png"):
-                            avatar_path = f"person_images/{name.capitalize()}.png"
+                        avatar_paths = glob(f"person_images/{name.capitalize()}.png")
+                        if len(avatar_paths) > 0:
+                            avatar_path = avatar_paths[0]
                         else:
                             avatar_path = "person_images/default.png"
                         with st.chat_message(
@@ -439,8 +446,9 @@ class MovieChatClient(DefaultClient):
                                     # with cc.chat_message("user"):
                                     #     st.markdown(chat)
                                 else:
-                                    if os.path.isfile(f"person_images/{name.capitalize()}.png"):
-                                        avatar_path = f"person_images/{name.capitalize()}.png"
+                                    avatar_paths = glob(f"person_images/{name.capitalize()}.png")
+                                    if len(avatar_paths) > 0:
+                                        avatar_path = avatar_paths[0]
                                     else:
                                         avatar_path = "person_images/default.png"
                                     with cc.chat_message(
