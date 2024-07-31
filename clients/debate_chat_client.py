@@ -4,6 +4,7 @@ import pandas as pd
 import logging
 import time
 import os 
+from PIL import Image
 from streamlit_extras.bottom_container import bottom
 from datetime import datetime
 
@@ -218,14 +219,17 @@ class DebateChatClient(DefaultClient):
                     st.title(f"**{st.session_state.player_names[i].capitalize()}**")
                     st.markdown(f"{st.session_state.ai_jobs[i]}")
                     try:
+                        # Load and resize the image
+                        image = Image.open(f"person_images/{st.session_state.player_names[i].capitalize()}.png")
+                        fixed_size_image = image.resize((200, 200))  # Resize to 200x200 pixels
                         st.image(
-                            f"person_images/{st.session_state.player_names[i].capitalize()}.png",
-                            width=150,
+                            fixed_size_image
                         )
                     except:
+                        image = Image.open("person_images/default.png")
+                        fixed_size_image = image.resize((200, 200))  # Resize to 200x200 pixels
                         st.image(
-                            "person_images/default.png",
-                            width=150,
+                            fixed_size_image
                         )
                     st.divider()
 
