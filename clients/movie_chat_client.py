@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 movie_dict = {
-    "islands": "https://www.youtube.com/watch?v=XyS4loJioEQ",
+    "island": "https://www.youtube.com/watch?v=XyS4loJioEQ",
     "inception": "https://www.youtube.com/watch?v=opZH6oF9O40&t=33s&ab_channel=%EB%B9%A8%EA%B0%95%EB%8F%84%EA%B9%A8%EB%B9%84",
     "her": "https://www.youtube.com/watch?v=P1L3YEoyWMQ",
 }
