@@ -293,7 +293,6 @@ class DebateChatClient(DefaultClient):
                 #             st.session_state.activate_toggle[player_name] = col.toggle(f"{player_name.capitalize()}", on_change=do_activate_toggle, kwargs={"n":player_name})
                 #             i+=1
                             
-                ic1, ic2 = st.columns([1, 9])
                 # ic1.button(
                 #     "발언권 넘기기",
                 #     on_click=do_idle_toggle,
@@ -306,7 +305,7 @@ class DebateChatClient(DefaultClient):
                     if not st.session_state.ai_acting
                     else "상대방이 메시지를 작성 중입니다. 잠시 기다려 주세요."
                 )
-                input_message = ic2.chat_input(
+                input_message = st.chat_input(
                     imsg_str, disabled=(st.session_state.ai_acting)
                 )
         else:

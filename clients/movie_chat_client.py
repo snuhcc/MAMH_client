@@ -361,7 +361,6 @@ class MovieChatClient(DefaultClient):
                 else:
                     button_disabled = st.session_state.ai_acting
 
-                ic1, ic2 = st.columns([1, 9])
                 # ic1.button(
                 #     "발언권 넘기기",
                 #     on_click=do_idle_toggle,
@@ -372,7 +371,7 @@ class MovieChatClient(DefaultClient):
                     if not st.session_state.ai_acting
                     else "상대방이 메시지를 작성 중입니다. 잠시 기다려 주세요."
                 )
-                input_message = ic2.chat_input(
+                input_message = st.chat_input(
                     imsg_str,
                     disabled=button_disabled,
                 )
