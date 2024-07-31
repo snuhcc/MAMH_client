@@ -294,13 +294,13 @@ class DebateChatClient(DefaultClient):
                 #             i+=1
                             
                 ic1, ic2 = st.columns([1, 9])
-                ic1.button(
-                    "발언권 넘기기",
-                    on_click=do_idle_toggle,
-                    disabled=(
-                        st.session_state.ai_acting
-                    ),
-                )
+                # ic1.button(
+                #     "발언권 넘기기",
+                #     on_click=do_idle_toggle,
+                #     disabled=(
+                #         st.session_state.ai_acting
+                #     ),
+                # )
                 imsg_str = (
                     "여기에 메시지를 작성해주세요."
                     if not st.session_state.ai_acting
