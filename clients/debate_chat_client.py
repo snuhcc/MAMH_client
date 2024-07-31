@@ -93,7 +93,7 @@ def button_end():
     st.session_state.client_chats = []
     st.session_state.timestamps = []
     st.session_state.msg_history = []
-    nextpage()
+    st.session_state.restarted = True
 
 def button_restart():
     st.session_state.restarted = True
