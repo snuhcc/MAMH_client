@@ -102,6 +102,8 @@ def button_end():
     nextpage()
 
 def button_restart():
+    if st.session_state.session_num >= 4:
+        st.session_state.server_socket.send("idle".encode())
     prevpage()
 
 def do_idle_toggle():
