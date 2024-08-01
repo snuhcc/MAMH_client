@@ -99,6 +99,7 @@ def button_end():
     st.session_state.msg_history = []    
     st.session_state.restarted = True
     st.session_state.session_num += 1
+    nextpage()
 
 def button_restart():
     prevpage()
@@ -479,6 +480,24 @@ class MovieChatClient(DefaultClient):
     def turn_end_page(self):
         with self.placeholder:
             st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
+            if st.session_state.session_num >= 4:
+                with st.expander(
+                        "채팅 활성화/비활성화 (채팅에는 적어도 한 명 이상의 상대를 활성화해야 합니다.)"
+                    ):
+                        len_rows = len(st.session_state.player_names) // 4 + 1
+                        i = 0
+                        for row in range(len_rows):
+                            cols = st.columns(4)
+                            for col in cols:
+                                if i >= len(st.session_state.player_names):
+                                    break
+                                player_name = st.session_state.player_names[i]
+                                st.session_state.activate_toggle[player_name] = col.toggle(
+                                    f"{player_name.capitalize()}",
+                                    on_change=do_activate_toggle,
+                                    kwargs={"n": player_name},
+                                )
+                                i += 1
             st.button("다음 세션", on_click=button_restart)
 
     
