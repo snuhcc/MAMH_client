@@ -95,6 +95,7 @@ def button_end():
     st.session_state.timestamps = []
     st.session_state.msg_history = []
     st.session_state.restarted = True
+    nextpage()
 
 def button_restart():
     prevpage()
