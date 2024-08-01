@@ -97,7 +97,6 @@ def button_end():
     st.session_state.restarted = True
 
 def button_restart():
-    st.session_state.restarted = True
     prevpage()
 
 def do_idle_toggle():
@@ -199,10 +198,10 @@ class DebateChatClient(DefaultClient):
             st.button("세션 끝내기", disabled=st.session_state.ai_acting, on_click=button_end)
             st.button("문서 다시보기", disabled=st.session_state.ai_acting, on_click=readpage)
 
-            if len(st.session_state.ai_jobs) > 1:
-                for i in range(len(st.session_state.ai_jobs)):
+            if len(st.session_state.ai_persona_summary) > 1:
+                for i in range(len(st.session_state.ai_persona_summary)):
                     st.title(f"**{st.session_state.player_names[i].capitalize()}**")
-                    st.markdown(f"{st.session_state.ai_jobs[i]}")
+                    st.markdown(f"{st.session_state.ai_persona_summary[i]}")
                     try:
                         # Load and resize the image
                         avatar_paths = glob(f"person_images/{st.session_state.player_names[i].capitalize()}.png")
@@ -399,7 +398,10 @@ class DebateChatClient(DefaultClient):
                 st.session_state.ai_acting = True
                 st.session_state.restarted = False
         with self.placeholder.container():
-            st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
+            with open(st.session_state.debate_path, "r",encoding='utf-8') as f:
+                text = f.read()
+            with st.container(height=600):
+                st.markdown(text)
             st.button("다음 세션", on_click=button_restart)
 
     # sub page
