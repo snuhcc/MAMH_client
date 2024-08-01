@@ -189,23 +189,6 @@ class DebateChatClient(DefaultClient):
 
     # chat_page
     def turn_waiting_page(self):
-        if st.session_state.restarted:
-            # with st.spinner("⌛ Please wait until the server starts new session."):
-            with st.spinner("⌛ 서버에서 세션을 시작할 때까지 잠시 기다려주세요. 아래에 이전 인터페이스가 떠도 버튼을 다시 누르거나 새로고침을 하지 말아주세요."):
-                data = get_msg_from_server("start")
-                data_list = data.split("\n\n")
-                st.session_state.ai_jobs = data_list[1].split("@")
-                st.session_state.ai_persona_summary = data_list[2].split("@")
-                debate_name = data_list[3]
-                st.session_state.player_names = data_list[4].split(', ')
-                st.session_state.player_names = [n.lower() for n in st.session_state.player_names]
-                st.session_state.activate_toggle = {k: False for k in st.session_state.player_names}
-                st.session_state.waiting_idle = 0
-                st.session_state.debate_path = debate_dict[debate_name]
-                st.session_state.first_rendering = True
-                st.session_state.session_control = True
-                st.session_state.ai_acting = True
-                st.session_state.restarted = False
        
         if st.session_state.first_rendering:
             self.placeholder.write(" ")
@@ -398,6 +381,23 @@ class DebateChatClient(DefaultClient):
     # end page
     def turn_end_page(self):
         # st.write("Session end. Goto New Session...")
+        if st.session_state.restarted:
+            # with st.spinner("⌛ Please wait until the server starts new session."):
+            with st.spinner("⌛ 서버에서 세션을 시작할 때까지 잠시 기다려주세요. 아래에 이전 인터페이스가 떠도 버튼을 다시 누르거나 새로고침을 하지 말아주세요."):
+                data = get_msg_from_server("start")
+                data_list = data.split("\n\n")
+                st.session_state.ai_jobs = data_list[1].split("@")
+                st.session_state.ai_persona_summary = data_list[2].split("@")
+                debate_name = data_list[3]
+                st.session_state.player_names = data_list[4].split(', ')
+                st.session_state.player_names = [n.lower() for n in st.session_state.player_names]
+                st.session_state.activate_toggle = {k: False for k in st.session_state.player_names}
+                st.session_state.waiting_idle = 0
+                st.session_state.debate_path = debate_dict[debate_name]
+                st.session_state.first_rendering = True
+                st.session_state.session_control = True
+                st.session_state.ai_acting = True
+                st.session_state.restarted = False
         with self.placeholder.container():
             st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
             st.button("다음 세션", on_click=button_restart)
