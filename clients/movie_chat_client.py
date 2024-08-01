@@ -80,6 +80,8 @@ def button1_thread(HOST, PORT, user_info):
 
 
 def button_chat():
+    if st.session_state.session_num >= 4:
+        st.session_state.server_socket.send("idle".encode())
     st.session_state.waiting_idle = True
     nextpage()
 
