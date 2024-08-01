@@ -398,7 +398,7 @@ class DebateChatClient(DefaultClient):
     # end page
     def turn_end_page(self):
         # st.write("Session end. Goto New Session...")
-        with self.placeholder:
+        with self.placeholder.container():
             st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
             st.button("다음 세션", on_click=button_restart)
 

@@ -478,7 +478,7 @@ class MovieChatClient(DefaultClient):
 
     # end page
     def turn_end_page(self):
-        with self.placeholder:
+        with self.placeholder.container():
             st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
             if st.session_state.session_num >= 4:
                 with st.expander(
