@@ -167,6 +167,10 @@ class MovieChatClient(DefaultClient):
                 data = get_msg_from_server("start")
                 data_list = data.split("\n\n")
                 st.session_state.ai_num = int(data_list[1])
+                if st.session_state.ai_num > 3:
+                    st.session_state.session_num = 4
+                else:
+                    st.session_state.session_num = 1
                 st.session_state.ai_jobs = data_list[2].split("@")
                 st.session_state.ai_persona_summary = data_list[3].split("@")
                 movie_name = data_list[4]
@@ -183,7 +187,7 @@ class MovieChatClient(DefaultClient):
                 st.session_state.session_control = True
                 st.session_state.ai_acting = True
                 st.session_state.restarted = False
-                st.session_state.session_num = 1
+                
         mkc = self.placeholder.container()
         mc = mkc.container(height=250)
         mkc.markdown("채팅을 하기 전에, 영화를 짧게 요약한 영상을 보여드리겠습니다.")
@@ -248,6 +252,8 @@ class MovieChatClient(DefaultClient):
                 data = get_msg_from_server("start")
                 data_list = data.split("\n\n")
                 st.session_state.ai_num = int(data_list[1])
+                if st.session_state.ai_num > 3:
+                    st.session_state.session_num = 4
                 st.session_state.ai_jobs = data_list[2].split("@")
                 st.session_state.ai_persona_summary = data_list[3].split("@")
                 movie_name = data_list[4]
