@@ -504,7 +504,11 @@ class MovieChatClient(DefaultClient):
                                     kwargs={"n": player_name},
                                 )
                                 i += 1
-            st.button("다음 세션", on_click=button_restart, disabled = (True not in st.session_state.activate_toggle.values()))
+            if st.session_state.session_num >= 4:
+                disabled_mark = (True not in st.session_state.activate_toggle.values())
+            else:
+                disabled_mark = False
+            st.button("다음 세션", on_click=button_restart, disabled = disabled_mark)
 
 
     
