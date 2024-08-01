@@ -455,6 +455,30 @@ class MovieChatClient(DefaultClient):
 
     # end page
     def turn_end_page(self):
+        if st.session_state.restarted:
+            # with st.spinner("⌛ Please wait until the server starts new session."):
+            with st.spinner("⌛ 서버에서 세션을 시작할 때까지 잠시 기다려주세요. 아래에 이전 인터페이스가 떠도 버튼을 다시 누르거나 새로고침을 하지 말아주세요."):
+                data = get_msg_from_server("start")
+                data_list = data.split("\n\n")
+                st.session_state.ai_num = int(data_list[1])
+                if st.session_state.ai_num > 3:
+                    st.session_state.session_num = 4
+                st.session_state.ai_jobs = data_list[2].split("@")
+                st.session_state.ai_persona_summary = data_list[3].split("@")
+                movie_name = data_list[4]
+                st.session_state.player_names = data_list[5].split(", ")
+                st.session_state.player_names = [
+                    n.lower() for n in st.session_state.player_names
+                ]
+                st.session_state.activate_toggle = {
+                    k: False for k in st.session_state.player_names
+                }
+                st.session_state.waiting_idle = 0
+                st.session_state.movie_path = movie_dict[movie_name]
+                st.session_state.first_rendering = True
+                st.session_state.session_control = True
+                st.session_state.ai_acting = True
+                st.session_state.restarted = False
         with self.placeholder.container():
             st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
             if st.session_state.session_num >= 4:
@@ -480,30 +504,7 @@ class MovieChatClient(DefaultClient):
     
     # sub page
     def game_end_page(self):
-        if st.session_state.restarted:
-            # with st.spinner("⌛ Please wait until the server starts new session."):
-            with st.spinner("⌛ 서버에서 세션을 시작할 때까지 잠시 기다려주세요. 아래에 이전 인터페이스가 떠도 버튼을 다시 누르거나 새로고침을 하지 말아주세요."):
-                data = get_msg_from_server("start")
-                data_list = data.split("\n\n")
-                st.session_state.ai_num = int(data_list[1])
-                if st.session_state.ai_num > 3:
-                    st.session_state.session_num = 4
-                st.session_state.ai_jobs = data_list[2].split("@")
-                st.session_state.ai_persona_summary = data_list[3].split("@")
-                movie_name = data_list[4]
-                st.session_state.player_names = data_list[5].split(", ")
-                st.session_state.player_names = [
-                    n.lower() for n in st.session_state.player_names
-                ]
-                st.session_state.activate_toggle = {
-                    k: False for k in st.session_state.player_names
-                }
-                st.session_state.waiting_idle = 0
-                st.session_state.movie_path = movie_dict[movie_name]
-                st.session_state.first_rendering = True
-                st.session_state.session_control = True
-                st.session_state.ai_acting = True
-                st.session_state.restarted = False
+
         with self.placeholder.container():
             if st.session_state.session_num >= 4:
                 with st.expander(
