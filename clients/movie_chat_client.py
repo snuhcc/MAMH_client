@@ -487,7 +487,8 @@ class MovieChatClient(DefaultClient):
             st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
             if st.session_state.session_num >= 4:
                 with st.expander(
-                        "채팅 활성화/비활성화 (채팅에는 적어도 한 명 이상의 상대를 활성화해야 합니다.)"
+                        "채팅 활성화/비활성화 (채팅에는 적어도 한 명 이상의 상대를 활성화해야 합니다.)",
+                        expanded=True
                     ):
                         len_rows = len(st.session_state.player_names) // 4 + 1
                         i = 0
@@ -503,7 +504,8 @@ class MovieChatClient(DefaultClient):
                                     kwargs={"n": player_name},
                                 )
                                 i += 1
-            st.button("다음 세션", on_click=button_restart)
+            st.button("다음 세션", on_click=button_restart, disabled = (True not in st.session_state.activate_toggle.values()))
+
 
     
     # sub page
