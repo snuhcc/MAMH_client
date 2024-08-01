@@ -65,7 +65,7 @@ class DefaultClient:
             st.write("정보를 입력하시면 서버에 연결해드리겠습니다!")
             HOST = st.text_input("🌐 IP Address", value="13.125.250.236")
             PORT = st.text_input("🌐 IP Port", value="20912")
-            username = st.selectbox("📛 이름을 선택하세요.", [f"U{i}" for i in range(15)])
+            username = st.selectbox("📛 이름을 선택하세요.", [f"U{i}" for i in range(37)])
             #st.write("You will receive a new nickname when the game starts.")
             # persona = st.text_area('Persona', '')
             user_info = {"username": username}
