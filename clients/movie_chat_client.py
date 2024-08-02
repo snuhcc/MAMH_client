@@ -34,6 +34,9 @@ def readpage():
 def chatpage():
     st.session_state.page = 2
 
+def waitpage():
+    st.session_state.page = 5
+
 
 def get_msg_from_server(splitter):
     data = ""
@@ -106,7 +109,7 @@ def button_end():
 def button_restart():
     if st.session_state.session_num >= 4:
         st.session_state.server_socket.send("idle".encode())
-    prevpage()
+    chatpage()
 
 def do_idle_toggle():
     st.session_state.server_socket.send("idle".encode())
@@ -192,6 +195,7 @@ class MovieChatClient(DefaultClient):
                 st.session_state.session_control = True
                 st.session_state.ai_acting = True
                 st.session_state.restarted = False
+                st.session_state.skipped = False
                 
         mkc = self.placeholder.container()
         mc = mkc.container(height=250)
@@ -403,6 +407,10 @@ class MovieChatClient(DefaultClient):
                     print("None")
                 elif new_msg == "NOHISTORY":
                     print("skipped")
+                    if not st.session_state.skipped:
+                        st.session_state.skipped = True
+                        st.rerun()
+                        
                 elif new_msg == "NOUPDATE":
                     print("no update")
                 else:
@@ -483,33 +491,10 @@ class MovieChatClient(DefaultClient):
                 st.session_state.session_control = True
                 st.session_state.ai_acting = True
                 st.session_state.restarted = False
+                st.session_state.skipped = False
         with self.placeholder.container():
-            st.write("세션이 끝났습니다. 다음 세션으로 넘어가세요.")
-            if st.session_state.session_num >= 4:
-                with st.expander(
-                        "채팅 활성화/비활성화 (채팅에는 적어도 한 명 이상의 상대를 활성화해야 합니다.)",
-                        expanded=True
-                    ):
-                        len_rows = len(st.session_state.player_names) // 4 + 1
-                        i = 0
-                        for row in range(len_rows):
-                            cols = st.columns(4)
-                            for col in cols:
-                                if i >= len(st.session_state.player_names):
-                                    break
-                                player_name = st.session_state.player_names[i]
-                                st.session_state.activate_toggle[player_name] = col.toggle(
-                                    f"{player_name.capitalize()}",
-                                    on_change=do_activate_toggle,
-                                    kwargs={"n": player_name},
-                                )
-                                i += 1
-            if st.session_state.session_num >= 4:
-                disabled_mark = (True not in st.session_state.activate_toggle.values())
-            else:
-                disabled_mark = False
-            st.button("다음 세션", on_click=button_restart, disabled = disabled_mark)
-
+            st.write("세션이 끝났습니다. 다음으로 넘어가세요.")
+            st.button("다음", on_click=waitpage)
 
     
     # sub page
@@ -536,3 +521,30 @@ class MovieChatClient(DefaultClient):
                                 i += 1
             st.video(st.session_state.movie_path)
             st.button("➡️ 돌아가기", key="buttonback", on_click=chatpage)
+
+    def night_msg_page(self):
+        with self.placeholder.container():
+            if st.session_state.session_num >= 4:
+                st.write("활성화할 봇을 정해주세요..")
+                with st.expander(
+                        "채팅 활성화/비활성화 (채팅에는 적어도 한 명 이상의 상대를 활성화해야 합니다.)",
+                        expanded=True
+                    ):
+                        len_rows = len(st.session_state.player_names) // 4 + 1
+                        i = 0
+                        for row in range(len_rows):
+                            cols = st.columns(4)
+                            for col in cols:
+                                if i >= len(st.session_state.player_names):
+                                    break
+                                player_name = st.session_state.player_names[i]
+                                st.session_state.activate_toggle[player_name] = col.toggle(
+                                    f"{player_name.capitalize()}",
+                                    on_change=do_activate_toggle,
+                                    kwargs={"n": player_name},
+                                )
+                                i += 1
+            else:
+                st.write("다음 세션으로 넘어갑니다.")
+            st.button("다음 세션", on_click=button_restart, disabled = (True not in st.session_state.activate_toggle.values()))
+

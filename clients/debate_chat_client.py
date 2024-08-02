@@ -176,6 +176,7 @@ class DebateChatClient(DefaultClient):
                 st.session_state.session_control = True
                 st.session_state.ai_acting = True
                 st.session_state.restarted = False
+                st.session_state.skipped = False
         with self.placeholder.container():
             #st.markdown("## 📖 First, read basic debate theme instuctions below.")
             st.markdown("## 📖 먼저, 이번 채팅의 주제에 관한 기본 설명을 읽어주세요.")
@@ -327,6 +328,9 @@ class DebateChatClient(DefaultClient):
                     print("None")
                 elif new_msg == "NOHISTORY":
                     print("skipped")
+                    if not st.session_state.skipped:
+                        st.session_state.skipped = True
+                        st.rerun()
                 elif new_msg == "NOUPDATE":
                     print("no update")
                 else:
@@ -398,6 +402,7 @@ class DebateChatClient(DefaultClient):
                 st.session_state.session_control = True
                 st.session_state.ai_acting = True
                 st.session_state.restarted = False
+                st.session_state.skipped = False
         with self.placeholder.container():
             with open(st.session_state.debate_path, "r",encoding='utf-8') as f:
                 text = f.read()
