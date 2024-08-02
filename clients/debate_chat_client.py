@@ -197,7 +197,7 @@ class DebateChatClient(DefaultClient):
         cc = self.placeholder.container()
         # with self.placeholder:
         with st.sidebar:
-            st.button("세션 끝내기", disabled=st.session_state.ai_acting, on_click=button_end)
+            st.button("세션 끝내기", on_click=button_end)
             st.button("문서 다시보기", disabled=st.session_state.ai_acting, on_click=readpage)
 
             if len(st.session_state.ai_persona_summary) > 1:
