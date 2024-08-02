@@ -263,7 +263,7 @@ class MovieChatClient(DefaultClient):
         # with self.placeholder:
         # with self.placeholder:
         with st.sidebar:
-            st.button("세션 끝내기", disabled=st.session_state.ai_acting, on_click=button_end)
+            st.button("세션 끝내기", on_click=button_end)
             st.button("영상 다시보기", disabled=st.session_state.ai_acting, on_click=readpage)
             if len(st.session_state.ai_jobs) > 1:
                 for i in range(len(st.session_state.ai_jobs)):
