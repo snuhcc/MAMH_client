@@ -458,18 +458,17 @@ class DebateChatClient(DefaultClient):
                         continue
                     
                     name, chat = ')'.join(chats.split(')')[1:]).strip().split(':')
-                    if is_player_name(name):
-                        if name.capitalize() == st.session_state.name:
-                            pass
+                    if name.capitalize() == st.session_state.name:
+                        pass
+                    else:
+                        avatar_paths = glob(f"person_images/{name.capitalize()}.png")
+                        if len(avatar_paths) > 0:
+                            avatar_path = avatar_paths[0]
                         else:
-                            avatar_paths = glob(f"person_images/{name.capitalize()}.png")
-                            if len(avatar_paths) > 0:
-                                avatar_path = avatar_paths[0]
-                            else:
-                                avatar_path = "person_images/default.png"
-                            with st.chat_message(
-                                "ai",
-                                avatar=avatar_path,
-                            ):
-                                chat.replace('\n', '\n\n')
-                                st.markdown(f"**[ {name} ]**: {chat}")
+                            avatar_path = "person_images/default.png"
+                        with st.chat_message(
+                            "ai",
+                            avatar=avatar_path,
+                        ):
+                            chat.replace('\n', '\n\n')
+                            st.markdown(f"**[ {name} ]**: {chat}")
