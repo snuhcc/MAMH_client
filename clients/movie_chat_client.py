@@ -37,6 +37,9 @@ def chatpage():
 def waitpage():
     st.session_state.page = 5
 
+def logpage():
+    st.session_state.page = 6
+
 
 def get_msg_from_server(splitter):
     data = ""
@@ -97,7 +100,7 @@ def button_end():
         ]
     )
     st.session_state.server_socket.send(
-        f"end_game\n\n{st.session_state.real_name}\n\n{client_chat_log}END".encode()
+        f"end_session\n\n{st.session_state.real_name}\n\n{client_chat_log}END".encode()
     )
     st.session_state.client_chats = []
     st.session_state.timestamps = []
@@ -105,6 +108,24 @@ def button_end():
     st.session_state.restarted = True
     st.session_state.session_num += 1
     nextpage()
+
+def button_final():
+    st.session_state.client_chats = [k for k in st.session_state.client_chats if k !='']
+    client_chat_log = "\n\n".join(
+        [
+            f"{st.session_state.timestamps[i]} {n}: {msg}"
+            for i, (n, msg) in enumerate(st.session_state.client_chats)
+        ]
+    )
+    st.session_state.server_socket.send(
+        f"end_session\n\n{st.session_state.real_name}\n\n{client_chat_log}END".encode()
+    )
+    st.session_state.client_chats = []
+    st.session_state.timestamps = []
+    st.session_state.msg_history = []
+    st.session_state.restarted = True
+    st.session_state.session_control = False
+    logpage()
 
 def button_restart():
     if st.session_state.session_num >= 4:
@@ -264,6 +285,7 @@ class MovieChatClient(DefaultClient):
         # with self.placeholder:
         with st.sidebar:
             st.button("세션 끝내기", on_click=button_end)
+            st.button("게임 끝내기(최종 세션에서만 누르세요.)", on_click=button_final)
             st.button("영상 다시보기", disabled=st.session_state.ai_acting, on_click=readpage)
             if len(st.session_state.ai_jobs) > 1:
                 for i in range(len(st.session_state.ai_jobs)):
@@ -548,3 +570,35 @@ class MovieChatClient(DefaultClient):
                 st.write("다음 세션으로 넘어갑니다.")
             st.button("다음 세션", on_click=button_restart, disabled = (True not in st.session_state.activate_toggle.values()))
 
+
+    def day_msg_page(self):
+        if not st.session_state.session_control:
+            with st.spinner("⌛ 서버 데이터 전송 대기"):
+                st.session_state.server_socket.send("get_final_logs".encode())
+                data = get_msg_from_server("start")
+                data_logs = "\n\n".join(data.split("\n\n")[1:])
+                st.session_state.logs_list = data_logs.split("BETWEENSESSIONS")
+                st.session_state.session_control = True
+        tabs = st.tabs([f"Session{i+1}" for i in range(len(st.session_state.logs_list))])
+        for i in range(len(st.session_state.logs_list)):
+            with tabs[i]:
+                parsed_chats = self.parsing_history(st.session_state.logs_list[i])
+                for i, chats in parsed_chats:
+                    if chats == "":
+                        continue
+                    name, chat = ')'.join(chats.split(')')[1:]).strip().split(':')
+                    if is_player_name(name):
+                        if name.capitalize() == st.session_state.name:
+                            pass
+                        else:
+                            avatar_paths = glob(f"person_images/{name.capitalize()}.png")
+                            if len(avatar_paths) > 0:
+                                avatar_path = avatar_paths[0]
+                            else:
+                                avatar_path = "person_images/default.png"
+                            with st.chat_message(
+                                "ai",
+                                avatar=avatar_path,
+                            ):
+                                chat.replace('\n', '\n\n')
+                                st.markdown(f"**[ {name} ]**: {chat}")
