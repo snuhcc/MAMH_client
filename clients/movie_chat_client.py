@@ -590,6 +590,7 @@ class MovieChatClient(DefaultClient):
                     if chats == "":
                         continue
                     name, chat = ')'.join(chats.split(')')[1:]).strip().split(':')
+                    st.write(name, chat)
                     if is_player_name(name):
                         if name.capitalize() == st.session_state.name:
                             with st.chat_message("user"):
