@@ -578,10 +578,7 @@ class MovieChatClient(DefaultClient):
                 data = get_msg_from_server("start")
                 data_logs = "\n\n".join(data.split("\n\n")[1:])
                 st.session_state.logs_list = data_logs.split("BETWEENSESSIONS")
-                st.session_state.server_socket.send("gotEND".encode())
                 st.session_state.session_control = True
-                
-                
         tabs = st.tabs([f"Session{i+1}" for i in range(len(st.session_state.logs_list))])
         for i in range(len(st.session_state.logs_list)):
             with tabs[i]:
@@ -592,8 +589,7 @@ class MovieChatClient(DefaultClient):
                     name, chat = ')'.join(chats.split(')')[1:]).strip().split(':')
                     if is_player_name(name):
                         if name.capitalize() == st.session_state.name:
-                            with st.chat_message("user"):
-                                st.markdown(chat.replace('\n', '\n\n'))
+                            pass
                         else:
                             avatar_paths = glob(f"person_images/{name.capitalize()}.png")
                             if len(avatar_paths) > 0:

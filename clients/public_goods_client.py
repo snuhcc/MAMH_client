@@ -44,23 +44,25 @@ def get_msg_from_server(splitter):
     buf = b''
     if isinstance(splitter, list):
         bools = sum([sp in data for sp in splitter]) > 0
-        while 'END' not in data or not bools:
+        while not bools:
             buf += st.session_state.server_socket.recv(1024)
             try:
                 data = buf.decode('utf-8')
             except Exception as e:
                 print(e)
+                bools = sum([sp in data for sp in splitter]) > 0
                 continue
             for sp in splitter:
                 if sp in data:
-                    data = data.split(sp)[1]
                     if 'END' in data:
-                        data = sp + data.split('END')[0]
-                        return data
+                        data = sp + data.split(sp)[1].split('END')[0]
+                        break
                     else:
-                        buf = (sp + data).encode()
+                        buf = data.split(sp)[1].encode()
+                        st.write(buf)
                         bools = sum([sp in data for sp in splitter]) > 0
                         continue
+            bools = sum([sp in data for sp in splitter]) > 0
     else:
         while 'END' not in data or splitter not in data:
             buf += st.session_state.server_socket.recv(1024)
@@ -76,7 +78,6 @@ def get_msg_from_server(splitter):
                 else:
                     buf = (splitter + data).encode()
                     continue
-
     return data
 
  
@@ -281,7 +282,7 @@ class PublicGoodsClient(DefaultClient):
 
             # st.write("Type your information and connect to your server!")
             st.write("정보를 입력하시면 서버에 연결해드리겠습니다!")
-            HOST = st.text_input('🌐 IP Address', value='13.125.250.236')
+            HOST = st.text_input('🌐 IP Address', value='127.0.0.1')
             PORT = st.text_input('🌐 PORT', value=20912)
             # username = st.text_input('📛 Your Name', '')
             username = st.text_input('📛 성함', '')
@@ -297,7 +298,7 @@ class PublicGoodsClient(DefaultClient):
 
         with self.placeholder:
             # with st.spinner("⌛ Please wait until the server starts the turn."):
-            with st.spinner("서버에서 입찰 세션을 시작하기까지 기다리는 중...\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
+            with st.spinner("⌛ 서버에서 새 라운드를 시작할 때까지 잠시 기다려주세요. "):
                 if not st.session_state.session_control:
                     data = get_msg_from_server('start_bid')
 
@@ -318,6 +319,7 @@ class PublicGoodsClient(DefaultClient):
                             if ':' in reply:
                                 name, msg = reply.split(':')
                                 st.session_state.message_logdict[name.strip()] += f"{st.session_state.turn-1}:(received)**&#x{2459 + st.session_state.turn}; | :orange[답장▶️]** | {msg}\n\n"
+        
         fc = self.placeholder.container()
         # start turn
         data_list = st.session_state.player_data
@@ -334,22 +336,22 @@ class PublicGoodsClient(DefaultClient):
             st.markdown(f"### 라운드 {st.session_state.turn} 입찰 세션") #@@@@
             # st.markdown(f"👤 **You are {st.session_state.name}.**")
             # on = st.toggle(f"Click to see Round Rule.")
-            # on = st.toggle(f"클릭하여 라운드 규칙을 확인해보세요!")
-            # if on:
-            #     # st.markdown(f"  -   You need to pay {data_list[2]} fare.")
-            #     # st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
-            #     # st.markdown(f"  -   If project success, you will receive an amount distributed according to the number of people, twice the total.")
-            #     # st.markdown(f"  -   If project fail, you get nothing.")
-            #     # st.markdown(f"  -   For example, if all people bid at least {int(data_list[2]) // 2}, you can deserve all {data_list[2]} fare.")
-            #     # st.markdown(f"   -  Contribute smart to survive {turn} rounds!")
-            #     st.markdown(f"  -   매 라운드마다 {data_list[2]}원이 참가비로 자동 차감됩니다.")
-            #     st.markdown(f"  -   팀과 상관없이 전원 입찰 금액의 합이 {data_list[3]}원을 넘으면 목표 금액 달성 성공!")
-            #     st.markdown(f"  -   목표 금액을 달성한 경우, 입찰 금액 합을 두 배로 하여 현재 게임 참가자 수만큼 나누어 배분합니다.")
-            #     st.markdown(f"  -   목표 금액을 달성하지 못하는 경우, 투자했던 입찰 금액을 잃게 됩니다.")
-            #     st.markdown(f"  -   예를 들어, 모든 플레이어가 적어도 {data_list[2]}를 입찰하는 경우, {int(data_list[2]) * 2} 만큼을 돌려 받기에 {data_list[2]}원의 참가비를 낼 수 있게 됩니다.")
-            #     st.markdown(f"  -   물론 한 명이라도 이보다 적게 낸다면 균형은 깨지고, 생존이 어려워질 것입니다.")
-            #     st.markdown(f"  -   튜토리얼에서 보셨듯이, 처음부터 상대팀을 탈락시킨다면 여러분은 마지막 라운드까지의 참가비를 낼 수 없어 아무도 승리하지 못할 것입니다.")
-            #     st.markdown(f"  -   총 {turn} 라운드를 생존해야 하니 신중하게 입찰해주세요!")
+            on = st.toggle(f"클릭하여 라운드 규칙을 확인해보세요!")
+            if on:
+                # st.markdown(f"  -   You need to pay {data_list[2]} fare.")
+                # st.markdown(f"  -   Project will be success if all contribution is over {data_list[3]}.")
+                # st.markdown(f"  -   If project success, you will receive an amount distributed according to the number of people, twice the total.")
+                # st.markdown(f"  -   If project fail, you get nothing.")
+                # st.markdown(f"  -   For example, if all people bid at least {int(data_list[2]) // 2}, you can deserve all {data_list[2]} fare.")
+                # st.markdown(f"   -  Contribute smart to survive {turn} rounds!")
+                st.markdown(f"  -   매 라운드마다 {data_list[2]}원이 참가비로 자동 차감됩니다.")
+                st.markdown(f"  -   팀과 상관없이 전원 입찰 금액의 합이 {data_list[3]}원을 넘으면 목표 금액 달성 성공!")
+                st.markdown(f"  -   목표 금액을 달성한 경우, 입찰 금액 합을 두 배로 하여 현재 게임 참가자 수만큼 나누어 배분합니다.")
+                st.markdown(f"  -   목표 금액을 달성하지 못하는 경우, 투자했던 입찰 금액을 잃게 됩니다.")
+                st.markdown(f"  -   예를 들어, 모든 플레이어가 적어도 {data_list[2]}를 입찰하는 경우, {int(data_list[2]) * 2} 만큼을 돌려 받기에 {data_list[2]}원의 참가비를 낼 수 있게 됩니다.")
+                st.markdown(f"  -   물론 한 명이라도 이보다 적게 낸다면 균형은 깨지고, 생존이 어려워질 것입니다.")
+                st.markdown(f"  -   튜토리얼에서 보셨듯이, 처음부터 상대팀을 탈락시킨다면 여러분은 마지막 라운드까지의 참가비를 낼 수 없어 아무도 승리하지 못할 것입니다.")
+                st.markdown(f"  -   총 {turn} 라운드를 생존해야 하니 신중하게 입찰해주세요!")
 
             st.markdown(f"👤 **당신의 캐릭터는 {st.session_state.name}입니다.**")
             if st.session_state.turn != 1:
@@ -590,9 +592,8 @@ class PublicGoodsClient(DefaultClient):
                     onclick = endpage
                     public_message = ""
             
-            if int(st.session_state.turn) == int(st.session_state.round_num):
+            if st.session_state.turn == st.session_state.round_num:
                 st.write("모든 라운드가 종료되었습니다.")
-                st.write(data_list[5])
                 onclick = endpage
                 st.session_state.server_socket.send('received'.encode())
                 public_message = ""
@@ -601,14 +602,14 @@ class PublicGoodsClient(DefaultClient):
                 # st.write("### Write Public Message")
                 st.write("### 전체 메시지를 작성해주세요")
                 # on = st.toggle(f"Click to see Message Rule.")
-                # on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
-                # if on:
-                #     # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
-                #     # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-                #     # st.write("  -   Also, please do not use double enter in your message.")
-                #     st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
-                #     st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
-                #     st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
+                on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
+                if on:
+                    # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible. ")
+                    # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                    # st.write("  -   Also, please do not use double enter in your message.")
+                    st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
+                    st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
+                    st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
                 with st.form(key='pmsg', border=False):
                     public_message = st.text_area(label="📧 전체 메시지", key='publics')
                     # submitted = st.form_submit_button("Submit")
@@ -627,7 +628,6 @@ class PublicGoodsClient(DefaultClient):
             with st.spinner("⌛ 다른 플레이어들이 결과를 확인하기까지 기다리는 중......\n\n아래에 이전 인터페이스가 떠도 버튼을 다시 누르지 말아주세요.\n\n안내와 다른 화면이 보일 경우 절대 새로고침(F5)를 누르지 마시고, 안내자에게 문의해 주세요."):
                 if not st.session_state.session_control:
                     data = get_msg_from_server(['start_turn', 'end_game'])
-                    print(data)
                     data_list = data.split('\n\n')
                     if 'end_game' in data_list[0]:
                         st.session_state.server_socket.send('received'.encode())
@@ -641,7 +641,7 @@ class PublicGoodsClient(DefaultClient):
 
         with self.placeholder.container():
             # st.write("🌒 Goto Next Turn Night...")
-            st.write(":blue[이제부터 1대1로 개인 메시지를 작성해주세요]")
+            st.write("이제부터 1대1로 개인 메시지를 작성해주세요")
             # st.button("➡️ Next", key='button4', on_click=onclick)
             st.button("➡️ 개인 메시지 세션으로 넘어가기", key='button4', on_click=onclick)
 
@@ -656,6 +656,7 @@ class PublicGoodsClient(DefaultClient):
                     st.session_state.server_socket.send('received'.encode())
                     st.session_state.session_control = True
                     st.session_state.server_socket.send('get_player_name'.encode())
+                    print("no player name?")
                     data = get_msg_from_server('player_name')
                     pname_list = data.split('player_name')[-1].split('\n')
                     pname_list = [item.replace("start", "") for item in pname_list if item != 'start']
@@ -685,15 +686,15 @@ class PublicGoodsClient(DefaultClient):
                     
             # st.write("### Write secret message")
             st.write("### 개인 메시지를 작성해주세요")
-            # # on = st.toggle(f"Click to see Message Rule.")
-            # on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
-            # if on:
-            #     # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
-            #     # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-            #     # st.write("  -   Also, please do not use double enter in your message.")
-            #     st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
-            #     st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
-            #     st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
+            # on = st.toggle(f"Click to see Message Rule.")
+            on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
+            if on:
+                # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+                # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                # st.write("  -   Also, please do not use double enter in your message.")
+                st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
+                st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
+                st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
             
             # st.write("**If you have completed writing the message, click the checkbox and then click the Send button.**")
             st.write("**메시지 작성을 완료한 경우, 체크박스를 클릭한 후, 전송 버튼을 눌러주세요.**")
@@ -763,14 +764,14 @@ class PublicGoodsClient(DefaultClient):
                     col.write(st.session_state.rnames[i])
                     col.image(f'person_images/{cname}.png', width=100)
                 # on = st.toggle(f"Click to see Message Rule.")
-                # on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
-                # if on:
-                #     # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
-                #     # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
-                #     # st.write("  -   Also, please do not use double enter in your message.")
-                #     st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
-                #     st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
-                #     st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
+                on = st.toggle(f"클릭하여 메시지 규칙을 확인해보세요!")
+                if on:
+                    # st.write("  -   You can write message as Korean, but please avoid using abbreviations or slang if possible.")
+                    # st.write("  -   Your message will be translated, proofread and delivered in English to opponents.")
+                    # st.write("  -   Also, please do not use double enter in your message.")
+                    st.write("  -   가능한 한 줄임말이나 비속어를 사용하지 않고 메시지를 작성해주세요. ")
+                    st.write("  -   당신의 메시지는 영어로 번역되어 상대에게 전달됩니다.")
+                    st.write("  -   메시지 작성시에는 더블 Enter는 지양해주세요.")
             else:
                 # st.write("❌ You've got no messages.")
                 st.write("❌ 받은 메시지가 없습니다.")
@@ -799,4 +800,6 @@ class PublicGoodsClient(DefaultClient):
 
     def blank_page(self):
         st.write("Some error find.")
-        st.write("진행자에게 에러 사실을 알려주세요.")
+        data = get_msg_from_server('page_fault')
+        returns = data.split('\n\n')[1]
+        st.session_state.page = int(returns)
